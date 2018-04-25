@@ -1,0 +1,32 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% block content %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3>Loading Control</h3>
+        </div>
+        <div class="panel-body">
+            <a href="{% url 'bluetooth_control' %}" class="btn btn-primary">Turn on Bluetooth</a>
+            {#            <button class="btn btn-primary" onclick="control_bluetooth()">Turn on Bluetooth</button>#}
+        </div>
+    </div>
+    {#    <script>#}
+    {#        function control_bluetooth() {#}
+    {#            $.get("{% url 'bluetooth_control' %}", data,#}
+    {#                function (json) {#}
+    {#                    if (json.status == "success") {#}
+    {#                        $body.removeClass("loading");#}
+    {#                        $('.ajaxProgress').hide();#}
+    {#                        alert("Successfully stored prescription");#}
+    {#                        window.location = "{% url 'check_patient' %}";#}
+    {#                    }#}
+    {#                    else {#}
+    {#                        $body.removeClass("loading");#}
+    {#                        $('.ajaxProgress').hide();#}
+    {#                        alert(json.message);#}
+    {#                        table_data = json.table_data;#}
+    {#                        callback();#}
+    {#                    }#}
+    {#                });#}
+    {#        }#}
+    {#    </script>#}
+{% endblock %}

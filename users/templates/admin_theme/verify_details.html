@@ -1,0 +1,31 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% block content %}
+    <div class="panel">
+        <div class="panel-heading">
+            <center><h3>User Details</h3></center>
+        </div>
+        <div class="panel-body">
+            <div class="row" style="margin-left: 120px;">
+                <div class="col-md-3 pull-left">
+                    <img src="http://10.1.75.239:8001{{ data.profile_pic }}" class="img-circle"
+                         style="margin-left: 50px;" width="100" height="100">
+                </div>
+                <div class="col-md-4 ">
+                    <h4>First Name: <b>{{ data.first_name }}</b><br>
+                        Last Name: <b>{{ data.last_name }}</b><br>
+                        Aadhar Number: <b>{{ aadhar }}</b><br>
+                        Email: <b>{{ data.email }}</b><br>
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <center>
+                    <div class="col-md-3">
+                        <a href="{% url 'prescription_list' %}" class="btn btn-primary">View Prescriptions</a>
+                    </div>
+                </center>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

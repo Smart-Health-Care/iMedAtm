@@ -1,0 +1,33 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% block content %}
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3>Prescription List</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>S.no</th>
+                    <th>ID</th>
+                    <th>Doctor Name</th>
+                    <th>Doctor Image</th>
+                    <th>Date</th>
+                    <th>View Prescription</th>
+                </tr>
+                {% for data in datas %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.id }}</td>
+                        <td>{{ data.doc_name }}</td>
+                        <td>
+                            <center><img src="{{ data.doc_pic }}" class="img-circle" width="100"
+                                         height="100"></center>
+                        </td>
+                        <td>{{ data.created }}</td>
+                    <td><a href="{% url 'prescription_view' data.id %}" class="btn btn-primary">View</a> </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}
