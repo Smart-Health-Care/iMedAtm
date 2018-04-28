@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^dispense/(?P<chamber_id>[0-9]+)/(?P<qty>[0-9]+)/(?P<prescription_id>[0-9]+)', dispense, name='dispense'),
     url(r'^vendor_load', vendor_load, name='vendor_load'),
     url(r'^bluetooth_control', bluetooth_control, name='bluetooth_control'),
-
+    url(r'^end_session',end_session,name='end_session'),
 ]

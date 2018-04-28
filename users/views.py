@@ -13,6 +13,7 @@ from django.utils.dateparse import parse_datetime
 from hardware import *
 
 # Create your views here.
+from iMedAtm.settings import SERVER_URL
 
 CHAMBER_1_STEPS = 400
 CHAMBER_2_STEPS = 800
@@ -39,7 +40,6 @@ def QRScanner():
             break
         data = decode(img)
         if data:
-            keyboard.send("alt+tab")
             cv2.destroyAllWindows()
             cap.release()
             cv2.waitKey(1)
@@ -49,6 +49,8 @@ def QRScanner():
 
 def CameraAccess(request):
     data = QRScanner()
+    keyboard.send("alt+tab")
+    keyboard.send("enter")
     if "vendor" in data:
         request.session.__setitem__("vendor_id", data.split("-")[1])
         return redirect('vendor_load')
@@ -73,7 +75,7 @@ def verify_details(request):
     aadhar = request.session.__getitem__('aadhar_number')
     if not aadhar:
         return redirect('landing_page')
-    response = requests.get("http://10.1.75.239:8001/api/v1/user_details?aadhar_number=" + aadhar)
+    response = requests.get(SERVER_URL + "/api/v1/user_details?aadhar_number=" + aadhar)
     data = None
     if response.status_code == 200:
         data = response.json()
@@ -84,7 +86,7 @@ def prescription_list(request):
     aadhar = request.session.__getitem__('aadhar_number')
     if not aadhar:
         return redirect('landing_page')
-    response = requests.get("http://10.1.75.239:8001/api/v1/user_prescription?aadhar_number=" + aadhar)
+    response = requests.get(SERVER_URL + "/api/v1/user_prescription?aadhar_number=" + aadhar)
     data = None
     if response.status_code == 200:
         request.session.__setitem__("prescription_data", response.json())
@@ -94,7 +96,7 @@ def prescription_list(request):
             doctor = prescription.get("doctor")
             created = prescription.get("created_at")
             doc_name = doctor.get("first_name") + " " + doctor.get("last_name")
-            doc_pic = "http://10.1.75.239:8001" + doctor.get("profile_pic")
+            doc_pic = SERVER_URL + doctor.get("profile_pic")
             id = prescription.get("id")
             created = parse_datetime(created).strftime("%d/%m/%Y %H:%M")
             data.append({
@@ -107,7 +109,7 @@ def prescription_list(request):
 
 
 def prescription_view(request, id):
-    response = requests.get("http://10.1.75.239:8001/api/v1/prescription?id=" + id + "&device_id=1")
+    response = requests.get(SERVER_URL+"/api/v1/prescription?id=" + id + "&device_id=1")
     prescription_data = request.session.__getitem__("prescription_data")
     if not prescription_data:
         return redirect('landing_page')
@@ -123,25 +125,29 @@ def prescription_view(request, id):
 
 
 chamber = 0
+ROLLER_STEP_COUNT = 50
 
 
 def dispense(request, chamber_id, qty, prescription_id):
     # Chamber Movement
+    chamber_id = int(chamber_id)
+    qty = int(qty)
+    prescription_id = int(prescription_id)
     global chamber
     data = chamber_id
-    if data == 1:
-        # Rotate Wheel
-
-        pass
-    elif data == 2:
-        # Rotate Spring 1
-        rotate_spring()
-        pass
-    elif data == 3:
-        # Rotate Spring 2
-        rotate_spring()
-    else:
-        rotate_chamber(data-3)
+    for i in range(0, qty):
+        if data == 1:
+            # Rotate Wheel
+            rotate_wheel()
+        elif data == 2:
+            # Rotate Spring 1
+            rotate_spring()
+            pass
+        elif data == 3:
+            # Rotate Spring 2
+            rotate_spring()
+        else:
+            rotate_chamber(data - 3)
     return redirect('prescription_view', prescription_id)
 
 
@@ -170,35 +176,36 @@ def bluetooth_control(request):
                 data = int(data)
                 if data == 4 and chamber == 0:
                     # Rotate Chamber 1
-                    forward_chamber(DELAY, CHAMBER_1_STEPS)
+                    forward_chamber_vacuum(CHAMBER_1_STEPS)
+                    chamber = 4
                 elif data == 5 and chamber == 0:
                     # Rotate Chamber 2
-                    forward_chamber(DELAY, CHAMBER_2_STEPS)
+                    forward_chamber_vacuum(CHAMBER_2_STEPS)
+                    chamber = 5
                 elif data == 6 and chamber == 0:
                     # Rotate Chamber 3
-                    backwards_chamber(DELAY, CHAMBER_2_STEPS)
+                    backward_chamber_vacuum(CHAMBER_2_STEPS)
+                    chamber = 6
                 elif data == 7 and chamber != 0:
                     # Reverse the corresponding Chamber
                     if chamber == 6:
-                        forward_chamber(DELAY, CHAMBER_2_STEPS)
+                        forward_chamber_vacuum(CHAMBER_2_STEPS)
                     elif chamber == 5:
-                        backwards_chamber(DELAY, CHAMBER_2_STEPS)
+                        backward_chamber_vacuum(CHAMBER_2_STEPS)
                     elif chamber == 4:
-                        backwards_chamber(DELAY, CHAMBER_1_STEPS)
+                        backward_chamber_vacuum(CHAMBER_1_STEPS)
                     chamber = 0
-                if data == 'end':
-                    break
                 client_sock.send("Success")
             except Exception, e:
-                client_sock.send("Error")
+                if data == 'end':
+                    break
+                client_sock.send("Error " + e.message)
     except IOError:
         pass
 
     client_sock.close()
     server_sock.close()
-    for key in request.session.keys():
-        del request.session[key]
-    return redirect('landing_page')
+    return redirect('end_session')
 
 
 def vendor_load(request):
@@ -206,3 +213,9 @@ def vendor_load(request):
     if not vendor_id:
         return redirect('landing_page')
     return render(request, 'admin_theme/vendor_load.html')
+
+
+def end_session(request):
+    for key in request.session.keys():
+        del request.session[key]
+    return redirect('landing_page')

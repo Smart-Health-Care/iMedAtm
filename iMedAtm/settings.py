@@ -114,3 +114,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+SERVER_URL='http://10.1.75.96:8000'
