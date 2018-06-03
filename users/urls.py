@@ -14,4 +14,6 @@ urlpatterns = [
     url(r'^vendor_load', vendor_load, name='vendor_load'),
     url(r'^bluetooth_control', bluetooth_control, name='bluetooth_control'),
     url(r'^end_session',end_session,name='end_session'),
+    url(r'^shell_session',session,name='session'),
+    url(r'middle',middle,name='middle'),
 ]

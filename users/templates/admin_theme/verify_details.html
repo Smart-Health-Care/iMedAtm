@@ -7,7 +7,7 @@
         <div class="panel-body">
             <div class="row" style="margin-left: 120px;">
                 <div class="col-md-3 pull-left">
-                    <img src="http://10.1.75.239:8001{{ data.profile_pic }}" class="img-circle"
+                    <img src="http://10.1.75.96:8000{{ data.profile_pic }}" class="img-circle"
                          style="margin-left: 50px;" width="100" height="100">
                 </div>
                 <div class="col-md-4 ">
@@ -20,9 +20,10 @@
             </div>
             <div class="row">
                 <center>
-                    <div class="col-md-3">
-                        <a href="{% url 'prescription_list' %}" class="btn btn-primary">View Prescriptions</a>
-                    </div>
+{#                    <div class="col-md-3">#}
+{#                        <a href="{% url 'prescription_list' %}" class="btn btn-primary">View Prescriptions</a>#}
+                        <button class="col-md-12 btn btn-primary" value="Dispense">Dispense</button>
+{#                    </div>#}
                 </center>
             </div>
 

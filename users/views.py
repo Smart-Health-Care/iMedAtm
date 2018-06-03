@@ -9,6 +9,7 @@ import requests
 from bluetooth import *
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_datetime
+from django.views.decorators.csrf import csrf_exempt
 
 from hardware import *
 
@@ -48,20 +49,24 @@ def QRScanner():
 
 
 def CameraAccess(request):
-    data = QRScanner()
-    keyboard.send("alt+tab")
-    keyboard.send("enter")
-    if "vendor" in data:
-        request.session.__setitem__("vendor_id", data.split("-")[1])
-        return redirect('vendor_load')
-    else:
-        request.session.__setitem__('aadhar_number', data)
-        return redirect('verify_details')
-
+    # data = QRScanner()
+    # keyboard.send("alt+tab")
+    # keyboard.send("enter")
+    # if "vendor" in data:
+    #     request.session.__setitem__("vendor_id", data.split("-")[1])
+    #     return redirect('vendor_load')
+    # else:
+    #     request.session.__setitem__('aadhar_number', data)
+    #     return redirect('verify_details')
+    time.sleep(10)
+    return redirect('verify_details')
 
 def display_camera(request):
     return render(request, 'admin_theme/scan_camera.html')
 
+
+def middle(request):
+    return render(request,'admin_theme/middle.html')
 
 def landing_page(request):
     return render(request, 'admin_theme/landing_page.html')
@@ -72,10 +77,11 @@ def dashboard(request):
 
 
 def verify_details(request):
-    aadhar = request.session.__getitem__('aadhar_number')
+    # aadhar = request.session.__getitem__('aadhar_number')
+    aadhar = 9597
     if not aadhar:
         return redirect('landing_page')
-    response = requests.get(SERVER_URL + "/api/v1/user_details?aadhar_number=" + aadhar)
+    response = requests.get(SERVER_URL + "/api/v1/user_details?aadhar_number=" + str(aadhar))
     data = None
     if response.status_code == 200:
         data = response.json()
@@ -109,7 +115,7 @@ def prescription_list(request):
 
 
 def prescription_view(request, id):
-    response = requests.get(SERVER_URL+"/api/v1/prescription?id=" + id + "&device_id=1")
+    response = requests.get(SERVER_URL + "/api/v1/prescription?id=" + id + "&device_id=1")
     prescription_data = request.session.__getitem__("prescription_data")
     if not prescription_data:
         return redirect('landing_page')
@@ -219,3 +225,6 @@ def end_session(request):
     for key in request.session.keys():
         del request.session[key]
     return redirect('landing_page')
+
+def session(request):
+    return render(request, 'admin_theme/shell.php')

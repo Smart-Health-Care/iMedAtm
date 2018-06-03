@@ -1,0 +1,10 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% load staticfiles %}
+{% block content %}
+    <img src="{% static 'loading/ajax-loader.gif' %}" width="300" height="300" id="loading-image">
+    <script>
+    setTimeout(function () {
+        window.location.href="{% url 'verify_details' %}";
+    })
+    </script>
+{% endblock %}
