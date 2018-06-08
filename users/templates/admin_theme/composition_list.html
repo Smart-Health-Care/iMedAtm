@@ -1,6 +1,6 @@
 {% extends 'admin_theme/dashboard.html' %}
 {% block content %}
-    <div class="panel panel-info"  style="overflow-x: hidden;">
+    <div class="panel panel-info" style="overflow-x: hidden;">
         <div class="panel-heading">
             <h3>Medicine List</h3>
         </div>
@@ -21,24 +21,34 @@
                     {#                    </h4>#}
                 </div>
                 <div class="row">
-                    <table class="table table-bordered table-striped">
-                        <tr>
-                            <th>S.no</th>
-                            <th>Medicine Name</th>
-                            <th>Quantity</th>
-                            <th>Action</th>
-                        </tr>
-                        {% for data in datas %}
+                    <form method="post" action="{% url 'dispense' %}">
+                        {% csrf_token %}
+                        <table class="table table-bordered table-striped">
                             <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td>{{ data.name }}</td>
-                                <td>{{ data.qty }}</td>
-                                <td><a href="{% url 'dispense' data.chamber_number data.qty prescription_id %}"
-                                       class="btn btn-primary">Dispense</a>
-                                </td>
+                                <th>S.no</th>
+                                <th>Prescribed Composition</th>
+                                <th>Quantity</th>
+                                <th>Medicine Name</th>
+                                <th>Possible to Dispense</th>
                             </tr>
-                        {% endfor %}
-                    </table>
+                            {% for data in datas %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ data.name }}</td>
+                                    <td>{{ data.prescribed_qty }}</td>
+                                    <td>{{ data.medicine }}</td>
+                                    <td>
+                                        <center><input type="number" value="{{ data.max_dispensable_qty }}"
+                                                       max="{{ data.max_dispensable_qty }}"
+                                                       name="{{ data.medicine }}" align="center"
+                                                       id="id_{{ data.medicine }}"></center>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                        <input type="hidden" value="{{ prescription_id }}" name="prescription_id">
+                        <input type="submit" class="btn btn-primary pull-right">
+                    </form>
                 </div>
             </div>
         </div>

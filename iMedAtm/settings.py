@@ -115,4 +115,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SERVER_URL='http://10.1.75.96:8000'
+STATIC_ROOT = 'staticdir'  # for docker deployment
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
+
+SERVER_URL='http://10.1.75.239:8000'
+
+DEVICE_ID = 1
