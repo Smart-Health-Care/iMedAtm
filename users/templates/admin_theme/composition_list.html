@@ -34,14 +34,21 @@
                             {% for data in datas %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{ data.name }}</td>
+                                    <td>{{ data.composition_name }}</td>
                                     <td>{{ data.prescribed_qty }}</td>
                                     <td>{{ data.medicine }}</td>
                                     <td>
                                         <center><input type="number" value="{{ data.max_dispensable_qty }}"
                                                        max="{{ data.max_dispensable_qty }}"
                                                        name="{{ data.medicine }}" align="center"
-                                                       id="id_{{ data.medicine }}"></center>
+                                                       id="id_{{ data.composition_id }}"></center>
+                                        <input type="hidden" value="{{ data.composition_id }}"
+                                               name="{{ data.medicine }}_composition"
+                                               id="id_{{ data.medicine }}_composition">
+                                        <input type="hidden" value="{{ data.multiplier }}"
+                                               name="{{ data.medicine }}_multiplier"
+                                               id="id_{{ data.medicine }}_multiplier">
+
                                     </td>
                                 </tr>
                             {% endfor %}

@@ -164,6 +164,10 @@ def dispense(request):
         for data in medicine_data:
             qty = request.POST.get(data)
             if qty:
+                qty = int(qty)
+                composition_id = int(request.POST.get(data + "_composition"))
+                multiplier = int(request.POST.get(data + "_multiplier"))
+
                 chambers = []
                 for chamber in chamber_data:
                     if chamber['medicine'] == data:
@@ -178,15 +182,31 @@ def dispense(request):
                 spring_2_count = None
                 balance = qty
                 for chamber in chambers:
+                    if balance == 0:
+                        break
                     rate = chamber['rate']
-                    quantity = chamber['quantity']
+                    if not rate:
+                        continue
+                    if rate > balance:
+                        continue
+                    quantity = chamber['available_qty']
                     if balance < quantity:
-                        balance = qty % quantity
-                        temp = qty - balance
-                        rotations = temp / rate
+                        rotations = balance / rate
+                        balance = balance % rate
                     else:
+                        balance = qty % quantity
                         rotations = quantity / rate
-                        balance -= quantity
+
+                    dict = {
+                        "chamber_id": chamber['chamber_id'],
+                        "prescription_id": prescription_id,
+                        "medicine": chamber['medicine_id'],
+                        "quantity": rotations * rate,
+                        "load_data": chamber['load_data']
+                    }
+                    if multiplier != 1:
+                        dict['actual_composition_id'] = composition_id
+                    dispensable_data.append(dict)
                     if 'roller' in chamber['chamber']:
                         code = chamber['chamber'].replace("roller", "").strip()
                         code = code[1:].strip()
@@ -202,8 +222,10 @@ def dispense(request):
                             spring_2_count = rotations
                 vacuum_count = None
                 for chamber in chambers:
+                    if balance == 0:
+                        break
                     if 'Vacuum Chamber' in chamber['chamber'] and not vacuum_count:
-                        if balance < 5:
+                        if balance <= 5:
                             if int(chamber['available_qty']) > balance:
                                 vacuum_count = balance
                                 code = int(chamber['chamber'].replace("Vacuum Chamber", "").strip())
@@ -215,6 +237,17 @@ def dispense(request):
                                     vacuum_3_count = balance
                                 elif code == 4:
                                     vacuum_4_count = balance
+
+                                dict = {
+                                    "chamber_id": chamber['chamber_id'],
+                                    "prescription_id": prescription_id,
+                                    "medicine": chamber['medicine_id'],
+                                    "quantity": balance,
+                                    "load_data": chamber['load_data']
+                                }
+                                if multiplier != 1:
+                                    dict['actual_composition_id'] = composition_id
+                                dispensable_data.append(dict)
                                 balance = 0
                                 break
                             else:
@@ -229,6 +262,24 @@ def dispense(request):
                                     vacuum_3_count = chamb_qty
                                 elif code == 4:
                                     vacuum_4_count = chamb_qty
+
+                                dict = {
+                                    "chamber_id": chamber['chamber_id'],
+                                    "prescription_id": prescription_id,
+                                    "medicine": chamber['medicine_id'],
+                                    "quantity": chamb_qty,
+                                    "load_data": chamber['load_data']
+                                }
+                                if multiplier != 1:
+                                    dict['actual_composition_id'] = composition_id
+                                dispensable_data.append(dict)
+        response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
+        if response.status_code == 200:
+            messages.success(request, "Transaction Successful")
+            # return redirect('end_session')
+        else:
+            messages.error(request, "Error in Transaction " + response.json()['Error'])
+            # return redirect('end_session')
         return redirect('prescription_view', prescription_id)
 
 
