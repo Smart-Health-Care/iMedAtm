@@ -1,29 +1,152 @@
 import time
 
 import RPi.GPIO as GPIO
+import serial
 
-# Wheel Control
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(40, GPIO.IN)
 
-IR_PIN = 22
-LDR_PIN = 36
-motora = 24
-motorb = 33  # Input Pin
-VACUUM_P = 38
-VACUUM_N = 40
-MINI_STEPPER_coil_A1 = 10
-MINI_STEPPER_coil_A2 = 12
-MINI_STEPPER_coil_B1 = 16
-MINI_STEPPER_coil_B2 = 18
-DIR_CHAMBER = 13  # Direction GPIO Pin
-STEP_CHAMBER = 11
-DIR_ROLLER = 11
-STEP_ROLLER = 7  # Step GPIO Pin
-LASER = 32
+# spring pins
 
-DELAY = .005
+
+IR_PIN1 = 10
+IR_PIN2 = 13
+# IR_PIN3 =  21
+# IR_PIN4 = 22
+motora = 11
+motorb = 12
+motorc = 15
+motord = 16
+# motore =
+# motord =
+# motorf =
+# motorg =
+
+
+# roller pin declaration
+DIR_ROLLER = 5
+STEP_ROLLER = 3
+
+# vacuum motors
+DELAY = 0.003
+
+DIR_CHAMBER = 8  # Direction GPIO Pin
+STEP_CHAMBER = 7
+VACUUM_P = 18
+VACUUM_N = 19
+# IR_PIN5 =
+MINI_STEPPER_coil_A1 = 35
+MINI_STEPPER_coil_A2 = 36
+MINI_STEPPER_coil_B1 = 37
+MINI_STEPPER_coil_B2 = 38
+LDR_PIN = 29
+LASER = 40
+PROXI = 33
+
+
+# spring motor functions
+
+def set():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(motora, GPIO.OUT)
+    GPIO.setup(motorb, GPIO.OUT)
+    GPIO.setup(motorc, GPIO.OUT)
+    GPIO.setup(motord, GPIO.OUT)
+    GPIO.setwarnings(False)
+
+
+def ir_spring1():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(IR_PIN1, GPIO.IN)
+    k = GPIO.input(IR_PIN1)
+    return (k)
+
+
+def proximity():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(PROXI, GPIO.IN)
+    j = GPIO.input(PROXI)
+    return (j)
+
+
+def ir_spring2():
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(IR_PIN2, GPIO.IN)
+    k = GPIO.input(IR_PIN2)
+    return (k)
+
+
+def forward1():
+    set()
+    GPIO.output(motora, GPIO.LOW)
+    GPIO.output(motorb, GPIO.HIGH)
+
+
+def stop1():
+    set()
+    GPIO.output(motora, GPIO.LOW)
+    GPIO.output(motorb, GPIO.LOW)
+
+
+def forward2():
+    set()
+    GPIO.output(motorc, GPIO.LOW)
+    GPIO.output(motord, GPIO.HIGH)
+
+
+def stop2():
+    set()
+    GPIO.output(motora, GPIO.LOW)
+    GPIO.output(motorb, GPIO.LOW)
+
+
+# roller functions
+
+
+def setpins_roller():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(DIR_ROLLER, GPIO.OUT)
+    GPIO.setup(STEP_ROLLER, GPIO.OUT)
+
+
+def forward_roller(step_count):
+    GPIO.setmode(GPIO.BOARD)
+    setpins_roller()
+    delay = 0.001
+    GPIO.output(DIR_ROLLER, 0)
+    for x in range(step_count):
+        GPIO.output(STEP_ROLLER, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(STEP_ROLLER, GPIO.LOW)
+        time.sleep(delay)
+    GPIO.cleanup()
+
+
+def backward_roller(step_count):
+    GPIO.setmode(GPIO.BOARD)
+    setpins_roller()
+    delay = 0.005
+    GPIO.output(DIR_ROLLER, 1)
+    for x in range(step_count):
+        GPIO.output(STEP_ROLLER, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(STEP_ROLLER, GPIO.LOW)
+        time.sleep(delay)
+    GPIO.cleanup()
+
+
+# vacuum functions
+
+def set1():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(VACUUM_P, GPIO.OUT)
+    GPIO.setup(VACUUM_N, GPIO.OUT)
+    GPIO.setwarnings(False)
+
 
 def set2():
     GPIO.setmode(GPIO.BOARD)
@@ -32,6 +155,7 @@ def set2():
     GPIO.setup(MINI_STEPPER_coil_B1, GPIO.OUT)
     GPIO.setup(MINI_STEPPER_coil_B2, GPIO.OUT)
 
+
 def setStep(w1, w2, w3, w4):
     GPIO.setmode(GPIO.BOARD)
     GPIO.output(MINI_STEPPER_coil_A1, w1)
@@ -39,34 +163,23 @@ def setStep(w1, w2, w3, w4):
     GPIO.output(MINI_STEPPER_coil_B1, w3)
     GPIO.output(MINI_STEPPER_coil_B2, w4)
 
-def set1():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(VACUUM_P, GPIO.OUT)
-    GPIO.setup(VACUUM_N, GPIO.OUT)
-    GPIO.setwarnings(False)
 
 def vacuum_on():
     set1()
     GPIO.output(VACUUM_P, GPIO.HIGH)
     GPIO.output(VACUUM_N, GPIO.LOW)
 
+
 def vacuum_off():
     set1()
     GPIO.output(VACUUM_P, GPIO.LOW)
     GPIO.output(VACUUM_N, GPIO.LOW)
 
-def shake():
-    set2()
-    delay = 0.003
-    steps = 20
-    for i in range(0, 200):
-        backward_vacuum_arm(20, delay)
-        forward_vacuum_arm(20, delay)
 
 def backward_vacuum_arm(steps, delay=0.003):
     set2()
     for i in range(0, steps):
-        setStep(1, 0, 1,  0)
+        setStep(1, 0, 1, 0)
         time.sleep(delay)
         setStep(0, 1, 1, 0)
         time.sleep(delay)
@@ -74,6 +187,7 @@ def backward_vacuum_arm(steps, delay=0.003):
         time.sleep(delay)
         setStep(1, 0, 0, 1)
         time.sleep(delay)
+
 
 def forward_vacuum_arm(steps, delay=0.003):
     set2()
@@ -87,26 +201,23 @@ def forward_vacuum_arm(steps, delay=0.003):
         setStep(1, 0, 1, 0)
         time.sleep(delay)
 
+
 def setpins_chamber():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN, GPIO.IN)
     GPIO.setup(DIR_CHAMBER, GPIO.OUT)
     GPIO.setup(STEP_CHAMBER, GPIO.OUT)
 
-def setpins_roller():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN, GPIO.IN)
-    GPIO.setup(DIR_ROLLER, GPIO.OUT)
-    GPIO.setup(STEP_ROLLER, GPIO.OUT)
 
 def forward_chamber_vacuum(step_count):
     setpins_chamber()
+    DELAY = 0.005
     GPIO.output(DIR_CHAMBER, 0)
     for x in range(step_count):
         GPIO.output(STEP_CHAMBER, GPIO.HIGH)
         time.sleep(DELAY)
         GPIO.output(STEP_CHAMBER, GPIO.LOW)
         time.sleep(DELAY)
+
 
 def backward_chamber_vacuum(step_count):
     setpins_chamber()
@@ -117,26 +228,6 @@ def backward_chamber_vacuum(step_count):
         GPIO.output(STEP_CHAMBER, GPIO.LOW)
         time.sleep(DELAY)
 
-def set():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(motora, GPIO.OUT)
-    GPIO.setup(motorb, GPIO.OUT)
-    GPIO.setwarnings(False)
-
-def backward():
-    set()
-    GPIO.output(motora, GPIO.HIGH)
-    GPIO.output(motorb, GPIO.LOW)
-
-def forward():
-    set()
-    GPIO.output(motora, GPIO.LOW)
-    GPIO.output(motorb, GPIO.HIGH)
-
-def stop():
-    set()
-    GPIO.output(motora, GPIO.LOW)
-    GPIO.output(motorb, GPIO.LOW)
 
 def rc_time():
     count = 0
@@ -149,13 +240,36 @@ def rc_time():
 
     return count
 
+
+port = 0
+while True:
+    try:
+        ser = serial.Serial(
+            port='/dev/ttyUSB' + str(port),
+            baudrate=9600,
+        )
+        break
+    except Exception:
+        port += 1
+        if port >=5:
+            break
+
+
+def current_vacuum():
+    x = ser.readline()
+    x = x.replace("\r", "").replace("\n", "")
+    return (x)
+
+
 def laser_on():
     GPIO.setup(LASER, GPIO.OUT)
     GPIO.output(LASER, GPIO.HIGH)
 
+
 def laser_off():
     GPIO.setup(LASER, GPIO.OUT)
     GPIO.output(LASER, GPIO.LOW)
+
 
 def laser_calibrate():
     laser_on()
@@ -164,6 +278,7 @@ def laser_calibrate():
         threshold = (threshold + rc_time()) / 2
     laser_off()
     return threshold
+
 
 def rotate_chamber(chamber_number):
     GPIO.setmode(GPIO.BOARD)
@@ -185,7 +300,7 @@ def rotate_chamber(chamber_number):
     # Vacuum Arm movement
     threshold = laser_calibrate()
     chamber_steps = n * 4 - chamber_steps
-    GPIO.setup(IR_PIN, GPIO.IN)
+    GPIO.setup(PROXI, GPIO.IN)
     set2()
     count = 0
     while True:
@@ -199,10 +314,10 @@ def rotate_chamber(chamber_number):
         time.sleep(delay)
         count += 1
         print(count)
-        ir = GPIO.input(IR_PIN)
+        ir = GPIO.input(PROXI)
         if ir == 0:
             forward_vacuum_arm(20)
-            count+=20
+            count += 20
             vacuum_on()
             time.sleep(5)
             backward_vacuum_arm(count)
@@ -227,29 +342,51 @@ def rotate_chamber(chamber_number):
             break
     GPIO.cleanup()
 
-def rotate_spring():
+
+def rotate_spring1():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN, GPIO.IN)
+    GPIO.setup(IR_PIN1, GPIO.IN)
     flag = True
     while True:
         if flag:
             flag = False
-            forward()
+            forward1()
             time.sleep(0.5)
-        i = GPIO.input(IR_PIN)
+        i = GPIO.input(IR_PIN1)
         print(i)
         if i == 0:
-            stop()
+            stop1()
             time.sleep(0.03)
             break
         else:
-            forward()
+            forward1()
+            time.sleep(0.03)
+    GPIO.cleanup()
+
+
+def rotate_spring2():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(IR_PIN2, GPIO.IN)
+    flag = True
+    while True:
+        if flag:
+            flag = False
+            forward2()
+            time.sleep(0.5)
+        k = GPIO.input(IR_PIN2)
+        if k == 0:
+            stop2()
+            time.sleep(0.03)
+            break
+        else:
+            forward2()
             time.sleep(0.03)
     GPIO.cleanup()
 
 
 def rotate_wheel():
     GPIO.setmode(GPIO.BOARD)
+    DELAY = 0.003
     step_count = 200
     setpins_roller()
     GPIO.output(DIR_ROLLER, 0)
@@ -259,13 +396,24 @@ def rotate_wheel():
         GPIO.output(STEP_ROLLER, GPIO.LOW)
         time.sleep(DELAY)
     GPIO.cleanup()
-def mashup_rotate():
+
+
+def vacuum_complete():
     forward_chamber_vacuum(800)
     vacuum_on()
     forward_vacuum_arm(460)
     time.sleep(1)
     backward_vacuum_arm(545)
     laser_on()
+    proximity()
     laser_calibrate()
     forward_chamber_vacuum(800)
     vacuum_off()
+
+
+def shake():
+    set2()
+    steps = 20
+    for i in range(0, 5):
+        forward_chamber_vacuum(steps)
+        backward_chamber_vacuum(steps)

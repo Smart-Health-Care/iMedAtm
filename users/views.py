@@ -2,6 +2,8 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import thread
+
 import cv2
 import pyzbar.pyzbar as pyzbar
 import requests
@@ -10,13 +12,10 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_datetime
 
+from hardware import *
 # Create your views here.
 from iMedAtm import settings
 from iMedAtm.settings import SERVER_URL
-
-# from hardware import *
-
-# from hardware import *
 
 CHAMBER_1_STEPS = 400
 CHAMBER_2_STEPS = 800
@@ -73,7 +72,7 @@ def middle(request):
 
 
 def landing_page(request):
-    return render(request, 'admin_theme/landing_page.html')
+    return render(request, 'admin_theme/scan_camera.html')
 
 
 def dashboard(request):
@@ -143,11 +142,14 @@ def prescription_view(request, id):
             doctor = data.get("doctor")
             break
     data = response.json()
+    if data.get("status"):
+        return redirect("prescription_list")
     request.session.__setitem__("chamber_data", data.get("chamber_data"))
     request.session.__setitem__("dispense_details", data.get("prescription_data"))
     request.session.__setitem__("medicines", data.get("medicines"))
     data = data.get("prescription_data")
-    return render(request, 'admin_theme/composition_list.html',
+    request.session.__setitem__("medicine_qty", data)
+    return render(request, 'admin_theme/prescription_view.html',
                   {'datas': data, 'doctor': doctor, 'prescription_id': int(id)})
 
 
@@ -155,12 +157,56 @@ chamber = 0
 ROLLER_STEP_COUNT = 50
 
 
+def spring_1_dispense(count):
+    while count != 0:
+        rotate_spring1()
+        time.sleep(1)
+        count -= 1
+
+
+def spring_2_dispense(count):
+    while count != 0:
+        rotate_spring2()
+        count -= 1
+
+
+def roller_right_dispense(count):
+    while count != 0:
+        backward_roller(100)
+        time.sleep(1)
+        count -= 1
+
+
+def roller_left_dispense(count):
+    while count != 0:
+        forward_roller(100)
+        time.sleep(1)
+        count -= 1
+
+
 def dispense(request):
     if request.method == 'POST':
         prescription_id = request.POST.get("prescription_id")
         medicine_data = request.session.__getitem__('medicines')
         chamber_data = request.session.__getitem__("chamber_data")
+        medicine_data_1 = request.session.__getitem__("medicine_qty")
         dispensable_data = []
+        for datas in medicine_data_1:
+            qty = request.POST.get(datas.get("medicine"))
+            if qty:
+                qty = int(qty)
+                if qty > int(datas.get("max_dispensable_qty")):
+                    messages.error(request, datas.get("medicine") + " quantity should be less than " + str(datas.get(
+                        "max_dispensable_qty")))
+                    return redirect("prescription_view", prescription_id)
+        vacuum_1_count = None
+        vacuum_2_count = None
+        vacuum_3_count = None
+        vacuum_4_count = None
+        roller_right_count = None
+        roller_left_count = None
+        spring_1_count = None
+        spring_2_count = None
         for data in medicine_data:
             qty = request.POST.get(data)
             if qty:
@@ -172,14 +218,6 @@ def dispense(request):
                 for chamber in chamber_data:
                     if chamber['medicine'] == data:
                         chambers.append(chamber)
-                vacuum_1_count = None
-                vacuum_2_count = None
-                vacuum_3_count = None
-                vacuum_4_count = None
-                roller_right_count = None
-                roller_left_count = None
-                spring_1_count = None
-                spring_2_count = None
                 balance = qty
                 for chamber in chambers:
                     if balance == 0:
@@ -273,6 +311,26 @@ def dispense(request):
                                 if multiplier != 1:
                                     dict['actual_composition_id'] = composition_id
                                 dispensable_data.append(dict)
+        # vacuum_1_count = None
+        # vacuum_2_count = None
+        # vacuum_3_count = None
+        # vacuum_4_count = None
+        # roller_right_count = None
+        # roller_left_count = None
+        # spring_1_count = None
+        # spring_2_count = None
+        if spring_1_count:
+            thread.start_new_thread(spring_1_dispense, (spring_1_count,))
+        if spring_2_count:
+            thread.start_new_thread(spring_2_dispense, (spring_2_count,))
+        if roller_right_count:
+            # Backward is for right roller
+            thread.start_new_thread(roller_right_dispense, (roller_right_count,))
+        if roller_left_count:
+            # Forward is for left roller
+            thread.start_new_thread(roller_left_dispense, (roller_left_count,))
+        if vacuum_1_count:
+            pass
         response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
         if response.status_code == 200:
             messages.success(request, "Transaction Successful")
