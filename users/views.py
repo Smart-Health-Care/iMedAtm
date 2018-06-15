@@ -184,6 +184,37 @@ def roller_left_dispense(count):
         count -= 1
 
 
+def vacuum(chamber):
+    temp = chamber
+    while temp > 0:
+        forward_chamber_vacuum()
+        temp -= 1
+    total_steps = 0
+    delay = 0.003
+    while True:
+        i = proximity()
+        if i == 1:
+            vacuum_on()
+            backward_vacuum_arm(total_steps)
+            temp = 6 - chamber
+            while temp > 0:
+                forward_chamber_vacuum()
+                temp -= 1
+            vacuum_off()
+            break
+        else:
+            set2()
+            setStep(1, 0, 1, 0)
+            time.sleep(delay)
+            setStep(0, 1, 1, 0)
+            time.sleep(delay)
+            setStep(0, 1, 0, 1)
+            time.sleep(delay)
+            setStep(1, 0, 0, 1)
+            time.sleep(delay)
+            total_steps += 1
+
+
 def dispense(request):
     if request.method == 'POST':
         prescription_id = request.POST.get("prescription_id")
@@ -330,7 +361,30 @@ def dispense(request):
             # Forward is for left roller
             thread.start_new_thread(roller_left_dispense, (roller_left_count,))
         if vacuum_1_count:
-            pass
+            temp = vacuum_1_count
+            while temp >0:
+                vacuum(1)
+                time.sleep(5)
+                temp -=1
+        if vacuum_2_count:
+            temp = vacuum_2_count
+            while temp > 0:
+                vacuum(2)
+                time.sleep(5)
+                temp -= 1
+        if vacuum_3_count:
+            temp = vacuum_3_count
+            while temp > 0:
+                vacuum(3)
+                time.sleep(5)
+                temp -= 1
+        if vacuum_4_count:
+            temp = vacuum_4_count
+            while temp > 0:
+                vacuum(4)
+                time.sleep(5)
+                temp -= 1
+        GPIO.cleanup()
         response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
         if response.status_code == 200:
             messages.success(request, "Transaction Successful")

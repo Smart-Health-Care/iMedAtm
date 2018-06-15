@@ -1,0 +1,132 @@
+*PPD-Adobe:             "4.3"
+*FormatVersion:         "4.3"
+*FileVersion:           "1.0"
+*LanguageVersion:       English
+*LanguageEncoding:      ISOLatin1
+*PCFileName:            "rp3150.ppd"
+*Manufacturer:          "SNBC"
+*Product:               "(CUPS v1.1)"
+*1284DeviceID:          "MFG:SNBC;CMD:SNBC;MDL:U80II;CLS:PRINTER;"
+*cupsVersion:           1.1
+*cupsManualCopies:      True
+*cupsModelNumber:       RP3150
+*cupsFilter:            "application/vnd.cups-raster 0 rastertorp3150"
+*ModelName:             "RP3150 STRA"
+*ShortNickName:         "RP3150"
+*NickName:              "SNBC RP3150 STRA CUPS v1.0"
+*PSVersion:             "(3010.000) 550"
+*LanguageLevel:         "3"
+*ColorDevice:           False
+*DefaultColorSpace:     Gray
+*FileSystem:            False
+*Throughput:            "1"
+*LandscapeOrientation:  Plus90
+*VariablePaperSize:     True
+*TTRasterizer:          Type42
+
+
+*OpenUI *PageSize/Media Size: PickOne
+*OrderDependency: 10 AnySetup *PageSize
+*DefaultPageSize: Paper297
+*PageSize Paper297:	"<</PageSize[204 843]/ImagingBBox null>>setpagedevice"
+*PageSize Paper210:	"<</PageSize[204 596]/ImagingBBox null>>setpagedevice"
+*CloseUI: *PageSize
+
+*OpenUI *PageRegion: PickOne
+*OrderDependency: 10 AnySetup *PageRegion
+*DefaultPageRegion: Paper297
+*PageSize Paper297:	"<</PageSize[204 843]/ImagingBBox null>>setpagedevice"
+*PageSize Paper210:	"<</PageSize[204 596]/ImagingBBox null>>setpagedevice"
+*CloseUI: *PageRegion
+
+*DefaultImageableArea: Paper297 
+*ImageableArea Paper297:  "0.0 0.0 204.0 841.0"
+*ImageableArea Paper210:  "0.0 0.0 204.0 594.0"
+
+*DefaultPaperDimension: Paper297
+*PaperDimension Paper297:	"204 843"
+*PaperDimension Paper210:	"204 596"
+
+
+*OpenUI *Resolution/Resolution: PickOne
+*OrderDependency: 20 AnySetup *Resolution
+*DefaultResolution: 180x180dpi
+*Resolution 180x180dpi/180 x 180DPI: "<</HWResolution[180 180]>>setpagedevice"
+*CloseUI: *Resolution
+
+
+*OpenUI *Buzzer/Beep: PickOne
+*DefaultBuzzer: 0Off
+*Buzzer 0Off/BeepOff: ""
+*Buzzer 1One/BeepOne: ""
+*Buzzer 2Three/BeepThree: ""
+*Buzzer 3Five/BeepFive: ""
+*Buzzer 4Ten/BeepTen: ""
+*Buzzer 5Twenty/BeepTwenty: ""
+*CloseUI: *Buzzer
+
+*OpenUI *Darkness/Darkness: PickOne
+*DefaultDarkness: 6
+*Darkness 0/Density0: ""
+*Darkness 1/Density1: ""
+*Darkness 2/Density2: ""
+*Darkness 3/Density3: ""
+*Darkness 4/Density4: ""
+*Darkness 5/Density5: ""
+*Darkness 6/Density6: "" 
+*Darkness 7/Density7: ""
+*Darkness 8/Density8: ""
+*Darkness 9/Density9: ""
+*Darkness 10/Density10: ""
+*Darkness 11/Density11: ""
+*Darkness 12/Density12: ""
+*Darkness 13/Density13: ""
+*Darkness 14/Density14: ""
+*Darkness 15/Density15: ""
+*Darkness 16/Density16: ""
+*CloseUI: *Darkness
+
+*OpenUI *PrintLogo/PrintLogo: PickOne
+*DefaultPrintLogo: 0logo
+*PrintLogo 0logo/NotPrintLogo: ""
+*PrintLogo 1logo/PrintLogo1: ""
+*PrintLogo 2logo/PrintLogo2: ""
+*PrintLogo 3logo/PrintLogo3: ""
+*PrintLogo 4logo/PrintLogo4: ""
+*PrintLogo 5logo/PrintLogo5: ""
+*PrintLogo 6logo/PrintLogo6: ""
+*PrintLogo 7logo/PrintLogo7: ""
+*PrintLogo 8logo/PrintLogo8: ""
+*PrintLogo 9logo/PrintLogo9: ""
+*CloseUI: *PrintLogo
+
+
+*OpenGroup: CutGroup/Cut Options
+*OpenUI *DocCutType/1. Document Cut Type: PickOne
+*DefaultDocCutType: 1PartialCutDoc
+*DocCutType 0NoCutDoc/No Cut: ""
+*DocCutType 1PartialCutDoc/Partial Cut: ""
+*DocCutType 2FullCutDoc/Full Cut: ""
+*CloseUI: *DocCutType
+*CloseGroup: CutGroup
+
+*OpenGroup: CashDrawerGroup/Cash Drawer Control
+*OpenUI *CashDrawer/1. Cash Drawer: PickOne
+*DefaultCashDrawer: 0DoNotOpenDrawers
+*CashDrawer 0DoNotOpenDrawers/Do Not Open Drawers: ""
+*CashDrawer 1OpenDrawer1/Open Drawer 1: ""
+*CashDrawer 2OpenDrawer2/Open Drawer 2: ""
+*CashDrawer 3OpenDrawer3/Open Drawers 1 and 2: ""
+*CashDrawer 4OpenDrawer4/Open Herald: ""
+*CloseUI: *CashDrawer
+
+*OpenUI *CashDrawer1PulseWidth/2. Cash Drawer Pulse Width: PickOne
+*DefaultCashDrawer1PulseWidth: 3Millis60
+*CashDrawer1PulseWidth 0Millis10/10 milliseconds: ""
+*CashDrawer1PulseWidth 1Millis20/20 milliseconds: ""
+*CashDrawer1PulseWidth 2Millis40/40 milliseconds: ""
+*CashDrawer1PulseWidth 3Millis60/60 milliseconds: ""
+*CloseUI: *CashDrawer1PulseWidth
+*CloseGroup: CashDrawerGroup
+
+*% End
