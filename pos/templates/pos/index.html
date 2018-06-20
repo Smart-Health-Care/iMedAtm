@@ -1,0 +1,62 @@
+{% load staticfiles %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>iMedDispenser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="{% static 'pos/css/bootstrap.min.css' %}" media="screen">
+    <link rel="stylesheet" href="{% static 'pos/css/styles.css' %}" media="screen">
+    <script src="{% static 'admin_theme/js/jquery-3.2.1.min.js' %}"></script>
+    <script src="{% static 'admin_theme/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'pos/vendor/sha256.min.js' %}"></script>
+    <script src="{% static 'pos/vendor/angular.min.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+    <script src="{% static 'pos/vendor/angular-modal-service.min.js' %}"></script>
+    <script src="{% static 'pos/js/services.js' %}"></script>
+    <script src="{% static 'pos/js/services/alertService.js' %}"></script>
+    <script src="{% static 'pos/js/routes.js' %}"></script>
+    <script src="{% static 'pos/js/controllers/billing_actions.js' %}"></script>
+    <script src="{% static 'pos/js/services/storageService.js' %}"></script>
+    <script src="{% static 'pos/js/controllers/transactions.js' %}"></script>
+    <script src="{% static 'pos/js/services/preferenceService.js' %}"></script>
+    <script src="{% static 'pos/js/app.js' %}"></script>
+    <script src="{% static 'pos/js/controllers/products_view_controller.js' %}"></script>
+
+
+</head>
+
+
+<body>
+
+<div class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <div class="navbar-header">
+            <a href="#!/" class="navbar-brand">iMedDispenser SmartPOS</a>
+            <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="navbar-collapse collapse" id="navbar-main">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="{% url 'end_session' %}">End Session</a></li>
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="container-fluid" ng-app="pos">
+    <div class="row" ng-view>
+
+
+    </div>
+</div>
+
+</body>
+
+
+</html>

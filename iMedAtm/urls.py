@@ -16,10 +16,14 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+from pos.views import GetOTCMedicines, FinishBill
 from users.views import landing_page
 
 urlpatterns = [
     url(r'^$', landing_page, name='landing_page'),
     url(r'^admin/', admin.site.urls),
-    url(r'^users/', include('users.urls'))
+    url(r'^users/', include('users.urls')),
+    url(r'^pos/', include('pos.urls')),
+    url(r'^api/otc_medicine_list', GetOTCMedicines.as_view()),
+    url(r'^api/finish_bill/', FinishBill.as_view())
 ]

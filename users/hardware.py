@@ -9,8 +9,8 @@ GPIO.setmode(GPIO.BOARD)
 # spring pins
 
 
-IR_PIN1 = 13
-IR_PIN2 = 15
+IR_PIN1 = 31
+IR_PIN2 = 29
 # IR_PIN3 =  21
 # IR_PIN4 = 22
 motora = 11
@@ -25,17 +25,17 @@ STEP_ROLLER = 16
 
 # vacuum motors
 DELAY = 0.005
-DIR_CHAMBER = 21 #29# Direction GPIO Pin
-STEP_CHAMBER = 19 #31
+DIR_CHAMBER = 21  # 29# Direction GPIO Pin
+STEP_CHAMBER = 19  # 31
 VACUUM_P = 24
-#VACUUM_N = 19
+# VACUUM_N = 19
 # IR_PIN5 =
 MINI_STEPPER_coil_A1 = 35
 MINI_STEPPER_coil_A2 = 36
 MINI_STEPPER_coil_B1 = 37
 MINI_STEPPER_coil_B2 = 38
-#LDR_PIN = 29
-#LASER = 40
+# LDR_PIN = 29
+# LASER = 40
 PROXI = 33
 
 
@@ -61,7 +61,7 @@ def ir_spring1():
 def proximity():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(PROXI, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(PROXI, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     k = GPIO.input(PROXI)
     return (k)
 
@@ -79,11 +79,9 @@ def forward1():
     GPIO.output(motora, GPIO.HIGH)
 
 
-
 def stop1():
     set()
     GPIO.output(motora, GPIO.LOW)
-
 
 
 def forward2():
@@ -109,7 +107,7 @@ def forward_roller(step_count=25):
     GPIO.setmode(GPIO.BOARD)
     setpins_roller()
     delay = 0.005
-    GPIO.output(DIR_ROLLER, GPIO.LOW )
+    GPIO.output(DIR_ROLLER, GPIO.LOW)
     for x in range(step_count):
         GPIO.output(STEP_ROLLER, GPIO.HIGH)
         time.sleep(delay)
@@ -136,7 +134,7 @@ def backward_roller(step_count=25):
 def set1():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(VACUUM_P, GPIO.OUT)
-    #GPIO.setup(VACUUM_N, GPIO.OUT)
+    # GPIO.setup(VACUUM_N, GPIO.OUT)
     GPIO.setwarnings(False)
 
 
@@ -159,13 +157,13 @@ def setStep(w1, w2, w3, w4):
 def vacuum_on():
     set1()
     GPIO.output(VACUUM_P, GPIO.HIGH)
-    #GPIO.output(VACUUM_N, GPIO.LOW)
+    # GPIO.output(VACUUM_N, GPIO.LOW)
 
 
 def vacuum_off():
     set1()
     GPIO.output(VACUUM_P, GPIO.LOW)
-    #GPIO.output(VACUUM_N, GPIO.LOW)
+    # GPIO.output(VACUUM_N, GPIO.LOW)
 
 
 def forward_vacuum_arm(steps, delay=0.003):
@@ -236,12 +234,13 @@ def forward_chamber_vacuum(step_count=33):
 def current_vacuum():
     port = 0
     ser = serial.Serial(
-            port='/dev/ttyUSB' + str(port),
-            baudrate=9600,
-            )
+        port='/dev/ttyUSB' + str(port),
+        baudrate=9600,
+    )
     x = ser.readline()
     x = x.replace("\r", "").replace("\n", "")
     return (x)
+
 
 # def laser_on():
 #     GPIO.setup(LASER, GPIO.OUT)
@@ -297,6 +296,7 @@ def rotate_chamber(chamber_number):
         count += 1
         print(count)
         ir = GPIO.input(PROXI)
+
         if ir == 0:
             backward_vacuum_arm(20)
             count += 20
@@ -327,7 +327,7 @@ def rotate_chamber(chamber_number):
 
 def rotate_spring1():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN1, GPIO.IN)
+    GPIO.setup(IR_PIN1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     flag = True
     while True:
         if flag:
@@ -347,7 +347,7 @@ def rotate_spring1():
 
 def rotate_spring2():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN2, GPIO.IN)
+    GPIO.setup(IR_PIN2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     flag = True
     while True:
         if flag:

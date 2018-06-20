@@ -1,0 +1,65 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% load staticfiles %}
+{% block content %}
+    <link href="{% static 'admin_theme/css/countdown_timer.css' %}" rel="stylesheet">
+    <script>
+        function makeTimer() {
+
+            var endTime = new Date("{{ date_string }}");
+            endTime = (Date.parse(endTime) / 1000);
+
+            var now = new Date();
+            now = (Date.parse(now) / 1000);
+
+            var timeLeft = endTime - now;
+
+            var days = Math.floor(timeLeft / 86400);
+            var hours = Math.floor((timeLeft - (days * 86400)) / 3600);
+            var minutes = Math.floor((timeLeft - (days * 86400) - (hours * 3600)) / 60);
+            var seconds = Math.floor((timeLeft - (days * 86400) - (hours * 3600) - (minutes * 60)));
+
+            if (hours < "10") {
+                hours = "0" + hours;
+            }
+            if (minutes < "10") {
+                minutes = "0" + minutes;
+            }
+            if (seconds < "10") {
+                seconds = "0" + seconds;
+            }
+
+            $("#minutes").html(minutes + "<span>Minutes</span>");
+            $("#seconds").html(seconds + "<span>Seconds</span>");
+
+        }
+
+        setInterval(function () {
+            makeTimer();
+        }, 1000);
+
+        window.setInterval(function () {
+            $.get("{{ check_url }}", function (data, status) {
+                if (data.status) {
+                    var delayInMilliseconds = 3000;
+                    setTimeout(function () {
+                        window.location = "{% url 'otc_payment' %}?payment=successful";
+                    }, delayInMilliseconds);
+                }
+            });
+        }, 10000);
+        var delayInMilliseconds = 300000;
+        setTimeout(function () {
+            alert("Payment Timed out");
+            setTimeout(function () {
+                window.location = "{% url 'end_session' %}";
+            }, 3000);
+        }, delayInMilliseconds);
+    </script>
+    <a href="{% url 'end_session' %}" class="btn btn-primary pull-right">End Session</a>
+    <p>Please do Process the payment within the given time</p>
+    <div id="timer">
+        <div id="minutes"></div>
+        <div id="seconds"></div>
+    </div>
+
+{% endblock %}

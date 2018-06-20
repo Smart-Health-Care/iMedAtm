@@ -26,8 +26,8 @@
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 
     {% endblock %}
-{% block head_script %}
-{% endblock %}
+    {% block head_script %}
+    {% endblock %}
 </head>
 
 <body>
@@ -139,9 +139,14 @@
     <div class="container-fluid">
         {% for message in messages %}
             <div class="row">
-                <div class="col-md-12 col-sm-12 col-xs-12">
-                    <div align="center"
-                         class="alert alert-{{ message.tags }}">{{ message }}</div>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                {% if message.tags == 'error' %}
+                    <div align="center" class="alert alert-danger">
+                {% else %}
+                    <div align="center" class="alert alert-{{ message.tags }}">
+                {% endif %}
+                {{ message }}
+                </div>
                 </div>
             </div>
         {% endfor %}
@@ -562,22 +567,22 @@
                 </div>
             </div>
         {% endblock %}
+        </div>
+        {% block footer %}
+            <footer class="footer">
+                <div class="container-fluid">
+                    <p class="copyright pull-right">
+                        &copy;
+                        <script>
+                            document.write(new Date().getFullYear())
+                        </script>
+                        <a href="https://iqube.io">iQube</a>, made with love for a better web
+                    </p>
+                </div>
+            </footer>
+        {% endblock %}
     </div>
-    {% block footer %}
-        <footer class="footer">
-            <div class="container-fluid">
-                <p class="copyright pull-right">
-                    &copy;
-                    <script>
-                        document.write(new Date().getFullYear())
-                    </script>
-                    <a href="https://iqube.io">iQube</a>, made with love for a better web
-                </p>
-            </div>
-        </footer>
-    {% endblock %}
     </div>
-</div>
 </body>
 <!--   Core JS Files   -->
 <script src="{% static 'admin_theme/js/jquery-3.2.1.min.js' %}" type="text/javascript"></script>

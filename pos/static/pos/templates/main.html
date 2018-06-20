@@ -1,0 +1,92 @@
+<div class="col-md-3 col-sm-3 order-overview" ng-controller="orderItemsCtrl as vm">
+    <div class="order-line-items">
+        <h5><b>Items</b></h5>
+        <div ng-repeat="item in vm.order.products ">
+            <div class="row">
+                <div class="col-md-2 col-sm-8">
+                    {{ item.medicine_name }} <br>
+                    Qty. <span ng-show="!item.editing"
+                               ng-click="item.editing=!item.editing;item.cQty=item.qty">{{ item.qty }}</span>
+                    <input style="width: 3px" ng-model="item.cQty" ng-blur="vm.changeQty(item.id,item.cQty,item.qty)"
+                           ng-show="item.editing" type="text"> x ₹ {{ item.price }}
+                </div>
+                <div class="col-md-4 col-sm-4 text-right">
+                    ₹ {{ vm.getItemTotal(item) }}
+                    <span ng-click="vm.minus(item.id)" class="fa fa-minus-circle" style="color:red;"> </span>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="order-total">
+            <h5><b>Total: ₹ {{ vm.getOrderTotal() }}</b></h5>
+        </div>
+
+
+    </div>
+
+    <div class="customer_actions" ng-controller="billing_actions as actions">
+        <div class="bill" style="text-align: center;">
+            <a ng-click="bill.finishBill()" class="btn btn-success" style="margin-top: 20px;">Bill</a>
+
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9 col-sm-9">
+    <div class="products-container" ng-controller="productsController as prod">
+        <div class="products-header">
+            <div class="header-left">
+                <ul class="nav nav-tabs" style="float: left;">
+                    <li ng-class="{active:bill.orders[bill.currentOrder]==order}"
+                        ng-repeat="order in bill.orders | filter:{status:'!completed'}">
+                        <a style="cursor: pointer;" ng-click="bill.selectBill(order)"> {{$index + 1}} &nbsp;&nbsp;
+                            <button style="padding: 4px 9px;font-size:9px;" class="btn btn-sm btn-danger"
+                                    ng-click="bill.removeBill($event,order)">-
+                            </button>
+                        </a>
+                    </li>
+                    <li><a ng-click="bill.createNewBill()">+</a></li>
+                </ul>
+                <div class="header-right">
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="products-wrapper">
+            <div class="row">
+
+            </div>
+            <div class="row">
+
+                <!-- Products repeat -->
+
+
+                <div class="col-md-2 col-sm-3" ng-repeat="product in prod.products  | filter: prod.filterParam">
+
+                    <div ng-click="prod.addToBill(product)" class="product-item">
+
+                        <img src="{{ product.image }}" alt="" height="25px" width="25px">
+                        <hr>
+                        <p>{{ product.medicine_name }} {{ product.stock }} </p>
+                        <p>₹{{ product.price }}</p>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -68,9 +68,14 @@
 <br>
 {% for message in messages %}
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div align="center"
-                 class="alert alert-{{ message.tags }}">{{ message }}</div>
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        {% if message.tags == 'error' %}
+            <div align="center" class="alert alert-danger">
+        {% else %}
+            <div align="center" class="alert alert-{{ message.tags }}">
+        {% endif %}
+        {{ message }}
+        </div>
         </div>
     </div>
 {% endfor %}
@@ -98,7 +103,7 @@
                     {#                    </h4>#}
                 </div>
                 <div class="row">
-                    <form method="post" action="{% url 'dispense' %}" id="table_form">
+                    <form method="post" action="{% url 'payment_confirmation' %}" id="table_form">
                         {% csrf_token %}
                         <table class="table table-bordered table-striped">
                             <tr>
@@ -118,6 +123,10 @@
                                         <center><input type="number" value="{{ data.max_dispensable_qty }}"
                                                        name="{{ data.medicine }}" align="center"
                                                        id="id_{{ data.composition_id }}"></center>
+
+                                        <input type="hidden" value="{{ data.medicine.price }}"
+                                               name="{{ data.medicine }}_price"
+                                               id="id_{{ data.medicine }}_price">
                                         <input type="hidden" value="{{ data.composition_id }}"
                                                name="{{ data.medicine }}_composition"
                                                id="id_{{ data.medicine }}_composition">

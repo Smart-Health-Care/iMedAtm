@@ -1,0 +1,47 @@
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-12">
+            <h3>Transactions</h3>
+            <h5>(Click to expand)</h5>
+            <table class="table table-striped">
+                <tr>
+                    <th>User</th>
+                    <th>Amount</th>
+                    <th>billed_at</th>
+                </tr>
+
+                <tr ng-repeat-start="bill in trans.transactions" ng-click = "bill.show=!bill.show" style="cursor:pointer">
+                    <td>{{ bill.user }}</td>
+                    <td>{{ bill.total }}</td>
+                    <td>{{ bill.created_at |date:'medium' }}</td>
+
+                </tr>
+
+                <tr ng-repeat-end="" ng-show="bill.show">
+
+                    <td colspan="3">
+                        <table class="table table-responsive">
+                            <tr>
+                                <th>S.No</th>
+                                <th>product</th>
+                                <th>quantity</th>
+
+                            </tr>
+                            <tr ng-repeat="item in bill.line_items">
+                                <td>{{ $index +1 }}</td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.qty }}</td>
+                            </tr>
+                        </table>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+</div>

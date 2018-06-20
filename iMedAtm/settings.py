@@ -35,7 +35,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users'
+    'users',
+    'pos',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -121,6 +123,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
 
-SERVER_URL='http://10.1.75.239:8000'
-
+# SERVER_URL='http://192.168.221.145:8000'
+# SERVER_URL = "https://imed.iqube.io"
+SERVER_URL = 'http://192.168.221.145:8000'
 DEVICE_ID = 1

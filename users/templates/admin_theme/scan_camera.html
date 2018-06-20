@@ -1,5 +1,20 @@
 {% extends 'admin_theme/dashboard.html' %}
+{% load staticfiles %}
 {% block content %}
-    <a href="{% url 'launch_camera' %}" class="btn btn-primary">Scan Qr</a>
-
+    <center>
+        <div class="container-fluid">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>iMed Dispenser</h3>
+                </div>
+                <div class="panel-body">
+{#                    <img src="{% static 'admin_theme/img/scan_qr.jpg' %}"><br>#}
+                    <br>
+                    <a href="{% url 'launch_camera' %}" class="btn btn-primary">Scan Qr</a>
+                    <a href="{% url 'pos_index' %}" class="btn btn-primary" style="margin-left: 40px;">Purchase OTC
+                        Drugs</a>
+                </div>
+            </div>
+        </div>
+    </center>
 {% endblock %}
