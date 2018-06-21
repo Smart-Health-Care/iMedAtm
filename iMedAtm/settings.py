@@ -125,5 +125,5 @@ MEDIA_URL = '/media/'
 
 # SERVER_URL='http://192.168.221.145:8000'
 # SERVER_URL = "https://imed.iqube.io"
-SERVER_URL = 'http://192.168.221.145:8000'
+SERVER_URL = 'http://192.168.43.192:8000'
 DEVICE_ID = 1

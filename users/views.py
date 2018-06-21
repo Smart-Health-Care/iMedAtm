@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from datetime import datetime, timedelta
+from random import randint
 
 import cv2
 import pytz
@@ -14,10 +15,12 @@ from django.http.response import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils.dateparse import parse_datetime
 
-from hardware import *
+# from hardware import *
 # Create your views here.
 from iMedAtm import settings
 from iMedAtm.settings import SERVER_URL
+from messageotp import send_message
+# from printer_check import print_prescription
 
 CHAMBER_1_STEPS = 400
 CHAMBER_2_STEPS = 800
@@ -60,7 +63,13 @@ def CameraAccess(request):
         return redirect('vendor_load')
     else:
         request.session.__setitem__('aadhar_number', data)
-        return redirect('pin_enter')
+
+        otp = randint(1000, 9999)
+        response = requests.get(SERVER_URL + "/api/v1/user_details?aadhar_number=" + str(data))
+        number = response.json().get("mobile_number")
+        send_message("Your OTP for iMedDispenser is " + str(otp), str(number))
+        request.session.__setitem__("otp", otp)
+        return redirect('otp_enter')
     # time.sleep(10)
     # return redirect('verify_details')
 
@@ -77,19 +86,21 @@ def landing_page(request):
 #     return render(request, 'admin_theme/dashboard.html')
 
 
-def pin_enter(request):
+def otp_enter(request):
     aadhar = request.session.__getitem__('aadhar_number')
     if not aadhar:
         return redirect('landing_page')
     if request.method == 'POST':
-        pin = request.POST.get("password")
-        response = requests.post(SERVER_URL + "/api/v1/authenticate", {'aadhar': aadhar, 'pin': pin})
-        if response.status_code == 200:
+        otp = int(request.POST.get("otp"))
+        # response = requests.post(SERVER_URL + "/api/v1/authenticate", {'aadhar': aadhar, 'otp': otp})
+        otp_sess = int(request.session.__getitem__("otp"))
+        if otp == otp_sess:
+            response = requests.get(SERVER_URL + "/api/v1/user_details?aadhar_number=" + str(aadhar))
             request.session.__setitem__('user', response.json())
             return redirect('prescription_list')
         else:
             messages.error(request, "Wrong Credentials")
-    return render(request, 'admin_theme/pin_enter_page.html')
+    return render(request, 'admin_theme/otp_enter_page.html')
 
 
 def verify_details(request):
@@ -202,64 +213,74 @@ def payment_wait(request, payment_request_id):
 chamber = 0
 ROLLER_STEP_COUNT = 50
 
-
-def spring_1_dispense(count):
-    while count != 0:
-        rotate_spring1()
-        time.sleep(1)
-        count -= 1
-
-
-def spring_2_dispense(count):
-    while count != 0:
-        rotate_spring2()
-        count -= 1
-
-
-def roller_right_dispense(count):
-    while count != 0:
-        backward_roller(12)
-        time.sleep(1)
-        count -= 1
-
-
-def roller_left_dispense(count):
-    while count != 0:
-        # forward_roller(12)
-        backward_roller(12)
-        time.sleep(1)
-        count -= 1
-
-
-def vacuum(chamber):
-    temp = chamber
-    while temp > 0:
-        forward_chamber_vacuum()
-        temp -= 1
-    total_steps = 0
-    delay = 0.003
-    while True:
-        i = proximity()
-        if i == 0:
-            vacuum_on()
-            backward_vacuum_arm(total_steps)
-            temp = 6 - chamber
-            while temp > 0:
-                forward_chamber_vacuum()
-                temp -= 1
-            vacuum_off()
-            break
-        else:
-            set2()
-            setStep(1, 0, 1, 0)
-            time.sleep(delay)
-            setStep(0, 1, 1, 0)
-            time.sleep(delay)
-            setStep(0, 1, 0, 1)
-            time.sleep(delay)
-            setStep(1, 0, 0, 1)
-            time.sleep(delay)
-            total_steps += 1
+#
+# def spring_1_dispense(count):
+#     while count != 0:
+#         rotate_spring1()
+#         time.sleep(1)
+#         count -= 1
+#
+#
+# def spring_2_dispense(count):
+#     while count != 0:
+#         rotate_spring2()
+#         count -= 1
+#
+#
+# def roller_right_dispense(count):
+#     while count != 0:
+#         backward_roller(13)
+#         time.sleep(1)
+#         count -= 1
+#
+#
+# def roller_left_dispense(count):
+#     while count != 0:
+#         forward_roller(13)
+#         time.sleep(1)
+#         count -= 1
+#
+#
+# def vacuum(chamber):
+#     temp = chamber
+#     while temp > 0:
+#         forward_chamber_vacuum()
+#         temp -= 1
+#     total_steps = 0
+#     delay = 0.003
+#     max_steps = 1900
+#     # flag = True
+#     while total_steps < max_steps:
+#         i = proximity()
+#         if i == 0:
+#             set3()
+#             arm_down(500)
+#             total_steps += 500
+#             vacuum_on()
+#             time.sleep(2)
+#             arm_up(total_steps)
+#             # i = proximity()
+#             # if i != 0:
+#             #     # if flag:
+#             #     #     flag = False
+#             #     continue
+#
+#             temp = 6 - chamber
+#             while temp > 0:
+#                 forward_chamber_vacuum()
+#                 temp -= 1
+#             vacuum_off()
+#             break
+#         else:
+#             GPIO.setmode(GPIO.BOARD)
+#             set3()
+#             delay = 0.001
+#             GPIO.output(ARM_DIR, GPIO.LOW)
+#             GPIO.output(ARM_STEP, GPIO.HIGH)
+#             time.sleep(delay)
+#             GPIO.output(ARM_STEP, GPIO.LOW)
+#             time.sleep(delay)
+#             total_steps += 1
 
 
 def dispense(request):
@@ -288,6 +309,7 @@ def dispense(request):
     vacuum_2_count = None
     vacuum_3_count = None
     vacuum_4_count = None
+    vacuum_5_count = None
     roller_right_count = None
     roller_left_count = None
     spring_1_count = None
@@ -360,6 +382,8 @@ def dispense(request):
                                 vacuum_3_count = balance
                             elif code == 4:
                                 vacuum_4_count = balance
+                            elif code == 5:
+                                vacuum_5_count = balance
 
                             dict = {
                                 "chamber_id": chamber['chamber_id'],
@@ -385,6 +409,8 @@ def dispense(request):
                                 vacuum_3_count = chamb_qty
                             elif code == 4:
                                 vacuum_4_count = chamb_qty
+                            elif code == 5:
+                                vacuum_5_count = balance
 
                             dict = {
                                 "chamber_id": chamber['chamber_id'],
@@ -396,49 +422,63 @@ def dispense(request):
                             if multiplier != 1:
                                 dict['actual_composition_id'] = composition_id
                             dispensable_data.append(dict)
-    if spring_1_count:
-        # thread.start_new_thread(spring_1_dispense, (spring_1_count,))
-        spring_1_dispense(spring_1_count)
-    if spring_2_count:
-        # thread.start_new_thread(spring_2_dispense, (spring_2_count,))
-        spring_2_dispense(spring_2_count)
-    if roller_right_count:
-        # Backward is for right roller
-        # thread.start_new_thread(roller_right_dispense, (roller_right_count,))
-        roller_right_dispense(roller_right_count)
-    if roller_left_count:
-        # Forward is for left roller
-        # thread.start_new_thread(roller_left_dispense, (roller_left_count,))
-        roller_left_dispense(roller_left_count)
-    if vacuum_1_count:
-        temp = vacuum_1_count
-        while temp >0:
-            vacuum(1)
-            time.sleep(5)
-            temp -=1
-    if vacuum_2_count:
-        temp = vacuum_2_count
-        while temp > 0:
-            vacuum(2)
-            time.sleep(5)
-            temp -= 1
-    if vacuum_3_count:
-        temp = vacuum_3_count
-        while temp > 0:
-            vacuum(3)
-            time.sleep(5)
-            temp -= 1
-    if vacuum_4_count:
-        temp = vacuum_4_count
-        while temp > 0:
-            vacuum(4)
-            time.sleep(5)
-            temp -= 1
-    GPIO.cleanup()
+    # if spring_1_count:
+    #     #     # thread.start_new_thread(spring_1_dispense, (spring_1_count,))
+    #     #     spring_1_dispense(spring_1_count)
+    #     #     GPIO.cleanup()
+    #     # if spring_2_count:
+    #     #     # thread.start_new_thread(spring_2_dispense, (spring_2_count,))
+    #     #     spring_2_dispense(spring_2_count)
+    #     #     GPIO.cleanup()
+    #     # if roller_right_count:
+    #     #     # Backward is for right roller
+    #     #     # thread.start_new_thread(roller_right_dispense, (roller_right_count,))
+    #     #     roller_right_dispense(roller_right_count)
+    #     #     GPIO.cleanup()
+    #     # if roller_left_count:
+    #     #     # Forward is for left roller
+    #     #     # thread.start_new_thread(roller_left_dispense, (roller_left_count,))
+    #     #     roller_left_dispense(roller_left_count)
+    #     #     GPIO.cleanup()
+    #     # if vacuum_1_count:
+    #     #     temp = vacuum_1_count
+    #     #     while temp > 0:
+    #     #         vacuum(1)
+    #     #         time.sleep(5)
+    #     #         temp -= 1
+    #     #         GPIO.cleanup()
+    #     # if vacuum_2_count:
+    #     #     temp = vacuum_2_count
+    #     #     while temp > 0:
+    #     #         vacuum(2)
+    #     #         time.sleep(5)
+    #     #         temp -= 1
+    #     #         GPIO.cleanup()
+    #     # if vacuum_3_count:
+    #     #     temp = vacuum_3_count
+    #     #     while temp > 0:
+    #     #         vacuum(3)
+    #     #         time.sleep(5)
+    #     #         temp -= 1
+    #     #         GPIO.cleanup()
+    #     # if vacuum_4_count:
+    #     #     temp = vacuum_4_count
+    #     #     while temp > 0:
+    #     #         vacuum(4)
+    #     #         time.sleep(5)
+    #     #         temp -= 1
+    #     #         GPIO.cleanup()
+    #     # if vacuum_5_count:
+    #     #     temp = vacuum_5_count
+    #     #     while temp > 0:
+    #     #         vacuum(5)
+    #     #         time.sleep(5)
+    #     #         temp -= 1
+    #     #         GPIO.cleanup()
     response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
     if response.status_code == 200:
         messages.success(request, "Transaction Successful")
-        return redirect('prescription_list')
+        return redirect('prescription_print_confirm', prescription_id)
     else:
         messages.error(request, "Error in Transaction " + response.json()['Error'])
         return redirect('prescription_list')
@@ -527,3 +567,16 @@ def otc_pos(request):
         request.session.__setitem__("mobile_number", mobile_number)
         return redirect('otc_payment')
     return render(request, 'admin_theme/mobile_number_enter.html')
+
+
+def prescription_print_confirm(request, prescription_id):
+    return render(request, 'admin_theme/prescription_confirm.html', {'prescription_id': prescription_id})
+
+
+def prescription_print(request, prescription_id):
+    # print_prescription(prescription_id)
+    return redirect("end_session")
+
+
+def temp_dispense_waiter(request):
+    return render(request, "admin_theme/dispense_waiter.html")

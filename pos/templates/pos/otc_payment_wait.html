@@ -42,11 +42,11 @@
                 if (data.status) {
                     var delayInMilliseconds = 3000;
                     setTimeout(function () {
-                        window.location = "{% url 'otc_payment' %}?payment=successful";
+                        window.location = "{% url 'otc_dispense_waiter' %}";
                     }, delayInMilliseconds);
                 }
             });
-        }, 10000);
+        }, 5000);
         var delayInMilliseconds = 300000;
         setTimeout(function () {
             alert("Payment Timed out");

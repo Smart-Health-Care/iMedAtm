@@ -1,0 +1,11 @@
+{% extends 'admin_theme/dashboard.html' %}
+{% block content %}
+    <div class="container-fluid">
+        <div class="panel panel-default">
+            <h2>Dispensing</h2>
+        </div>
+    </div>
+    <script>
+        window.location.href = "{% url 'dispense' %}?payment=successful"
+    </script>
+{% endblock %}

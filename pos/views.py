@@ -1,10 +1,9 @@
-import thread
 import time
 from datetime import datetime, timedelta
 
 import pytz
 import requests
-from RPi import GPIO
+# from RPi import GPIO
 from django.contrib import messages
 from django.shortcuts import render, redirect
 # Create your views here.
@@ -13,7 +12,7 @@ from rest_framework.views import APIView
 
 from iMedAtm import settings
 from iMedAtm.settings import SERVER_URL
-from users.views import vacuum, roller_left_dispense, roller_right_dispense, spring_2_dispense, spring_1_dispense
+# from users.views import vacuum, roller_left_dispense, roller_right_dispense, spring_2_dispense, spring_1_dispense
 
 
 def index(request):
@@ -55,7 +54,7 @@ def payment(request):
         return redirect('otc_payment_wait', payment_request_id)
     else:
         messages.error(request, "Error Processing Payment")
-        # return redirect('end_session')
+        return redirect('end_session')
 
 
 def otc_payment_wait(request, payment_request_id):
@@ -73,11 +72,12 @@ def otc_dispense(request):
     vacuum_2_count = None
     vacuum_3_count = None
     vacuum_4_count = None
+    vacuum_5_count = None
     roller_right_count = None
     roller_left_count = None
     spring_1_count = None
     spring_2_count = None
-    response = requests.get(SERVER_URL + "/api/v1/device_chamber_data?device_id=1")
+    response = requests.get(SERVER_URL + "/api/v1/device_chamber_data?device_id=" + str(settings.DEVICE_ID))
     chamber_data = response.json()
     products = request.session.__getitem__("products")
     for data in products:
@@ -142,7 +142,8 @@ def otc_dispense(request):
                                 vacuum_3_count = balance
                             elif code == 4:
                                 vacuum_4_count = balance
-
+                            elif code == 5:
+                                vacuum_5_count = balance
                             dict = {
                                 "chamber_id": chamber['chamber_id'],
                                 "medicine": chamber['medicine_id'],
@@ -164,7 +165,8 @@ def otc_dispense(request):
                                 vacuum_3_count = chamb_qty
                             elif code == 4:
                                 vacuum_4_count = chamb_qty
-
+                            elif code == 5:
+                                vacuum_5_count = chamb_qty
                             dict = {
                                 "chamber_id": chamber['chamber_id'],
                                 "medicine": chamber['medicine_id'],
@@ -173,41 +175,63 @@ def otc_dispense(request):
                             }
                             dispensable_data.append(dict)
 
-    if spring_1_count:
-        thread.start_new_thread(spring_1_dispense, (spring_1_count,))
-    if spring_2_count:
-        thread.start_new_thread(spring_2_dispense, (spring_2_count,))
-    if roller_right_count:
-        # Backward is for right roller
-        thread.start_new_thread(roller_right_dispense, (roller_right_count,))
-    if roller_left_count:
-        # Forward is for left roller
-        thread.start_new_thread(roller_left_dispense, (roller_left_count,))
-    if vacuum_1_count:
-        temp = vacuum_1_count
-        while temp > 0:
-            vacuum(1)
-            time.sleep(5)
-            temp -= 1
-    if vacuum_2_count:
-        temp = vacuum_2_count
-        while temp > 0:
-            vacuum(2)
-            time.sleep(5)
-            temp -= 1
-    if vacuum_3_count:
-        temp = vacuum_3_count
-        while temp > 0:
-            vacuum(3)
-            time.sleep(5)
-            temp -= 1
-    if vacuum_4_count:
-        temp = vacuum_4_count
-        while temp > 0:
-            vacuum(4)
-            time.sleep(5)
-            temp -= 1
-    GPIO.cleanup()
+    # if spring_1_count:
+    #     # thread.start_new_thread(spring_1_dispense, (spring_1_count,))
+    #     spring_1_dispense(spring_1_count)
+    #     GPIO.cleanup()
+    # if spring_2_count:
+    #     # thread.start_new_thread(spring_2_dispense, (spring_2_count,))
+    #     spring_2_dispense(spring_2_count)
+    #     GPIO.cleanup()
+    # if roller_right_count:
+    #     # Backward is for right roller
+    #     # thread.start_new_thread(roller_right_dispense, (roller_right_count,))
+    #     roller_right_dispense(roller_right_count)
+    #     GPIO.cleanup()
+    # if roller_left_count:
+    #     # Forward is for left roller
+    #     # thread.start_new_thread(roller_left_dispense, (roller_left_count,))
+    #     roller_left_dispense(roller_left_count)
+    #     GPIO.cleanup()
+    # if vacuum_1_count:
+    #     temp = vacuum_1_count
+    #     while temp > 0:
+    #         vacuum(1)
+    #         time.sleep(5)
+    #         temp -= 1
+    #         GPIO.cleanup()
+    # if vacuum_2_count:
+    #     temp = vacuum_2_count
+    #     while temp > 0:
+    #         vacuum(2)
+    #         time.sleep(5)
+    #         temp -= 1
+    #         GPIO.cleanup()
+    # if vacuum_3_count:
+    #     temp = vacuum_3_count
+    #     while temp > 0:
+    #         vacuum(3)
+    #         time.sleep(5)
+    #         temp -= 1
+    #         GPIO.cleanup()
+    # if vacuum_4_count:
+    #     temp = vacuum_4_count
+    #     while temp > 0:
+    #         vacuum(4)
+    #         time.sleep(5)
+    #         temp -= 1
+    #         GPIO.cleanup()
+    # if vacuum_5_count:
+    #     temp = vacuum_5_count
+    #     while temp > 0:
+    #         vacuum(5)
+    #         time.sleep(5)
+    #         temp -= 1
+    #         GPIO.cleanup()
     response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
     messages.success(request, 'Transaction Complete')
     return redirect('end_session')
+
+
+def temp_dispense_waiter(request):
+    return render(request, "pos/dispense_waiter.html")

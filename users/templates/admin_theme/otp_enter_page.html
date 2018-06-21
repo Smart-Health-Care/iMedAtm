@@ -29,7 +29,7 @@
         // Instantiate NumPad once the page is ready to be shown
         $(document).ready(function () {
 
-            $('#password').numpad({
+            $('#otp').numpad({
                 displayTpl: '<input class="form-control" type="password" />',
                 hidePlusMinusButton: true,
                 hideDecimalButton: true
@@ -80,15 +80,15 @@
         <a href="{% url 'end_session' %}" class="btn btn-primary" style="margin: 20px;">End Session</a>
 
         <div class="panel-heading">
-            <center><h1>Enter Pin</h1></center>
+            <center><h1>Enter OTP</h1></center>
         </div>
         <div class="panel-body">
             <form action="" method="post">
                 {% csrf_token %}
                 <h3>
                     <div class="form-group">
-                        <label for="password">Pin code</label>
-                        <input type="password" class="form-control" name="password" id="password">
+                        <label for="otp">OTP</label>
+                        <input type="password" class="form-control" name="otp" id="otp">
                     </div>
                     <input type="submit" name="submit" class="btn btn-primary">
                 </h3>

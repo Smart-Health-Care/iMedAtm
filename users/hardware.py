@@ -9,8 +9,8 @@ GPIO.setmode(GPIO.BOARD)
 # spring pins
 
 
-IR_PIN1 = 31
-IR_PIN2 = 29
+IR_PIN1 = 13
+IR_PIN2 = 15
 # IR_PIN3 =  21
 # IR_PIN4 = 22
 motora = 11
@@ -20,20 +20,23 @@ motorb = 12
 # motore =
 # motorf =
 # roller pin declaration
-DIR_ROLLER = 18
-STEP_ROLLER = 16
+DIR_ROLLER = 32  # 5
+STEP_ROLLER = 24
 
 # vacuum motors
 DELAY = 0.005
 DIR_CHAMBER = 21  # 29# Direction GPIO Pin
 STEP_CHAMBER = 19  # 31
-VACUUM_P = 24
+VACUUM_P = 40
 # VACUUM_N = 19
 # IR_PIN5 =
-MINI_STEPPER_coil_A1 = 35
+MINI_STEPPER_coil_A1 = 31
 MINI_STEPPER_coil_A2 = 36
-MINI_STEPPER_coil_B1 = 37
-MINI_STEPPER_coil_B2 = 38
+MINI_STEPPER_coil_B1 = 8
+MINI_STEPPER_coil_B2 = 29
+
+ARM_DIR = 38
+ARM_STEP = 35
 # LDR_PIN = 29
 # LASER = 40
 PROXI = 33
@@ -53,7 +56,7 @@ def set():
 def ir_spring1():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN1, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(IR_PIN1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     i = GPIO.input(IR_PIN1)
     return (i)
 
@@ -69,7 +72,7 @@ def proximity():
 def ir_spring2():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(IR_PIN2, GPIO.IN,pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(IR_PIN2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     j = GPIO.input(IR_PIN2)
     return (j)
 
@@ -103,7 +106,7 @@ def setpins_roller():
     GPIO.setup(STEP_ROLLER, GPIO.OUT)
 
 
-def forward_roller(step_count=25):
+def backward_chamber_vacuum(step_count=33):
     GPIO.setmode(GPIO.BOARD)
     setpins_roller()
     delay = 0.005
@@ -116,7 +119,7 @@ def forward_roller(step_count=25):
     # GPIO.cleanup()
 
 
-def backward_roller(step_count=25):
+def forward_chamber_vacuum(step_count=33):
     GPIO.setmode(GPIO.BOARD)
     setpins_roller()
     delay = 0.005
@@ -144,6 +147,36 @@ def set2():
     GPIO.setup(MINI_STEPPER_coil_A2, GPIO.OUT)
     GPIO.setup(MINI_STEPPER_coil_B1, GPIO.OUT)
     GPIO.setup(MINI_STEPPER_coil_B2, GPIO.OUT)
+
+
+def set3():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(ARM_STEP, GPIO.OUT)
+    GPIO.setup(ARM_DIR, GPIO.OUT)
+
+
+def arm_down(step_count):
+    GPIO.setmode(GPIO.BOARD)
+    set3()
+    delay = 0.001
+    GPIO.output(ARM_DIR, GPIO.LOW)
+    for x in range(step_count):
+        GPIO.output(ARM_STEP, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(ARM_STEP, GPIO.LOW)
+        time.sleep(delay)
+
+
+def arm_up(step_count):
+    GPIO.setmode(GPIO.BOARD)
+    set3()
+    delay = 0.001
+    GPIO.output(ARM_DIR, GPIO.HIGH)
+    for x in range(step_count):
+        GPIO.output(ARM_STEP, GPIO.HIGH)
+        time.sleep(delay)
+        GPIO.output(ARM_STEP, GPIO.LOW)
+        time.sleep(delay)
 
 
 def setStep(w1, w2, w3, w4):
@@ -198,7 +231,7 @@ def setpins_chamber():
     GPIO.setup(STEP_CHAMBER, GPIO.OUT)
 
 
-def backward_chamber_vacuum(step_count=33):
+def backward_roller(step_count=23):
     setpins_chamber()
     DELAY = 0.005
     GPIO.output(DIR_CHAMBER, 0)
@@ -209,7 +242,7 @@ def backward_chamber_vacuum(step_count=33):
         time.sleep(DELAY)
 
 
-def forward_chamber_vacuum(step_count=33):
+def forward_roller(step_count=23):
     setpins_chamber()
     DELAY = 0.005
     GPIO.output(DIR_CHAMBER, 1)
@@ -264,19 +297,19 @@ def current_vacuum():
 def rotate_chamber(chamber_number):
     GPIO.setmode(GPIO.BOARD)
     laser_flag = False
-    delay = 0.003
+    delay = 0.005
     # Chamber Movement
     chamber_steps = 0
-    n = 395
+    n = 33
     if chamber_number == 1:
         chamber_steps = n
-        forward_chamber_vacuum(chamber_steps)
+        forward_roller(chamber_steps)
     elif chamber_number == 2:
         chamber_steps = n * 2
-        forward_chamber_vacuum(chamber_steps)
+        forward_roller(chamber_steps)
     elif chamber_number == 3:
         chamber_steps = n * 3
-        forward_chamber_vacuum(chamber_steps)
+        forward_roller(chamber_steps)
         # backward_chamber_vacuum(chamber_steps)
     # Vacuum Arm movement
     # threshold = laser_calibrate()
@@ -299,7 +332,7 @@ def rotate_chamber(chamber_number):
 
         if ir == 0:
             backward_vacuum_arm(20)
-            count += 20
+            count += 2
             vacuum_on()
             time.sleep(5)
             forward_vacuum_arm(count)
@@ -317,7 +350,7 @@ def rotate_chamber(chamber_number):
             #     continue
             # else:
             print("medicine picked ")
-            forward_chamber_vacuum(chamber_steps)
+            forward_roller(chamber_steps)
             # backward_chamber_vacuum(chamber_steps)
             time.sleep(1)
             vacuum_off()
@@ -396,5 +429,5 @@ def shake():
     set2()
     steps = 20
     for i in range(0, 5):
-        forward_chamber_vacuum(steps)
-        backward_chamber_vacuum(steps)
+        forward_roller(steps)
+        backward_roller(steps)
