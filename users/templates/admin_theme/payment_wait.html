@@ -37,16 +37,10 @@
             makeTimer();
         }, 1000);
 
-        window.setInterval(function () {
+        window.setTimeout(function () {
             window.location = "{% url 'dispense_waiter' %}";
         }, 5000);
-        var delayInMilliseconds = 300000;
-        setTimeout(function () {
-            alert("Payment Timed out");
-            setTimeout(function () {
-                window.location = "{% url 'end_session' %}";
-            }, 3000);
-        }, delayInMilliseconds);
+
     </script>
     <a href="{% url 'end_session' %}" class="btn btn-primary pull-right">End Session</a>
     <p>Please do Process the payment within the given time</p>

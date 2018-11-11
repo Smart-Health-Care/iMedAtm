@@ -1,18 +1,20 @@
-import time
+# coding=utf-8
 from datetime import datetime, timedelta
+from subprocess import Popen
 
 import pytz
 import requests
-# from RPi import GPIO
+from RPi import GPIO
 from django.contrib import messages
 from django.shortcuts import render, redirect
-# Create your views here.
+import time
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from iMedAtm import settings
 from iMedAtm.settings import SERVER_URL
-# from users.views import vacuum, roller_left_dispense, roller_right_dispense, spring_2_dispense, spring_1_dispense
+from users.views import vacuum, roller_left_dispense, roller_right_dispense, spring_2_dispense, spring_1_dispense
+from tts import pos_tts
 
 
 def index(request):
@@ -32,15 +34,17 @@ class FinishBill(APIView):
         request.session.__setitem__("products", data)
         total = 0
         items = []
+        qty_1 = 0
         for product in data:
             qty = int(product.get("qty"))
+            qty_1 = qty
             price = product.get("price")
             stock = int(product.get("stock"))
             remaining = stock - qty
             total += (qty * price)
             items.append({'id': product.get("id"), "stock": remaining})
         request.session.__setitem__("total", total)
-        datas = {"status": "success", "message": "Confirm Payment of Rs." + str(total), 'data': items}
+        datas = {"status": "success", "message": "Confirm Payment of Rs." + str(total), 'data': items, 'qty': qty_1}
         return Response(datas)
 
 
@@ -175,59 +179,59 @@ def otc_dispense(request):
                             }
                             dispensable_data.append(dict)
 
-    # if spring_1_count:
-    #     # thread.start_new_thread(spring_1_dispense, (spring_1_count,))
-    #     spring_1_dispense(spring_1_count)
-    #     GPIO.cleanup()
-    # if spring_2_count:
-    #     # thread.start_new_thread(spring_2_dispense, (spring_2_count,))
-    #     spring_2_dispense(spring_2_count)
-    #     GPIO.cleanup()
-    # if roller_right_count:
-    #     # Backward is for right roller
-    #     # thread.start_new_thread(roller_right_dispense, (roller_right_count,))
-    #     roller_right_dispense(roller_right_count)
-    #     GPIO.cleanup()
-    # if roller_left_count:
-    #     # Forward is for left roller
-    #     # thread.start_new_thread(roller_left_dispense, (roller_left_count,))
-    #     roller_left_dispense(roller_left_count)
-    #     GPIO.cleanup()
-    # if vacuum_1_count:
-    #     temp = vacuum_1_count
-    #     while temp > 0:
-    #         vacuum(1)
-    #         time.sleep(5)
-    #         temp -= 1
-    #         GPIO.cleanup()
-    # if vacuum_2_count:
-    #     temp = vacuum_2_count
-    #     while temp > 0:
-    #         vacuum(2)
-    #         time.sleep(5)
-    #         temp -= 1
-    #         GPIO.cleanup()
-    # if vacuum_3_count:
-    #     temp = vacuum_3_count
-    #     while temp > 0:
-    #         vacuum(3)
-    #         time.sleep(5)
-    #         temp -= 1
-    #         GPIO.cleanup()
-    # if vacuum_4_count:
-    #     temp = vacuum_4_count
-    #     while temp > 0:
-    #         vacuum(4)
-    #         time.sleep(5)
-    #         temp -= 1
-    #         GPIO.cleanup()
-    # if vacuum_5_count:
-    #     temp = vacuum_5_count
-    #     while temp > 0:
-    #         vacuum(5)
-    #         time.sleep(5)
-    #         temp -= 1
-    #         GPIO.cleanup()
+    if spring_1_count:
+        # thread.start_new_thread(spring_1_dispense, (spring_1_count,))
+        spring_1_dispense(spring_1_count)
+        GPIO.cleanup()
+    if spring_2_count:
+        # thread.start_new_thread(spring_2_dispense, (spring_2_count,))
+        spring_2_dispense(spring_2_count)
+        GPIO.cleanup()
+    if roller_right_count:
+        # Backward is for right roller
+        # thread.start_new_thread(roller_right_dispense, (roller_right_count,))
+        roller_right_dispense(roller_right_count)
+        GPIO.cleanup()
+    if roller_left_count:
+        # Forward is for left roller
+        # thread.start_new_thread(roller_left_dispense, (roller_left_count,))
+        roller_left_dispense(roller_left_count)
+        GPIO.cleanup()
+    if vacuum_1_count:
+        temp = vacuum_1_count
+        while temp > 0:
+            vacuum(1)
+            time.sleep(5)
+            temp -= 1
+            GPIO.cleanup()
+    if vacuum_2_count:
+        temp = vacuum_2_count
+        while temp > 0:
+            vacuum(2)
+            time.sleep(5)
+            temp -= 1
+            GPIO.cleanup()
+    if vacuum_3_count:
+        temp = vacuum_3_count
+        while temp > 0:
+            vacuum(3)
+            time.sleep(5)
+            temp -= 1
+            GPIO.cleanup()
+    if vacuum_4_count:
+        temp = vacuum_4_count
+        while temp > 0:
+            vacuum(4)
+            time.sleep(5)
+            temp -= 1
+            GPIO.cleanup()
+    if vacuum_5_count:
+        temp = vacuum_5_count
+        while temp > 0:
+            vacuum(5)
+            time.sleep(5)
+            temp -= 1
+            GPIO.cleanup()
     response = requests.post(SERVER_URL + "/api/v1/dispense_log", json=dispensable_data)
     messages.success(request, 'Transaction Complete')
     return redirect('end_session')
@@ -235,3 +239,18 @@ def otc_dispense(request):
 
 def temp_dispense_waiter(request):
     return render(request, "pos/dispense_waiter.html")
+
+
+class PlayHelpAudio(APIView):
+    def get(self, request):
+        file_name = request.GET.get("file_name")
+        qty = request.GET.get("qty")
+        if file_name or qty:
+            if qty:
+                pos_tts(int(qty))
+            else:
+                file_name = "/home/pi/iMedDispenser/iMedAtm/audio/" + file_name
+                process = Popen(['mpg123', file_name])
+            return Response({"success": "audio is playing"})
+        else:
+            return Response({"wrong Request"}, status=400)

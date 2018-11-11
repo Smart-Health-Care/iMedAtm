@@ -218,7 +218,7 @@
                         else {
                             //dont know what to do
                         }
-                        alertService.showAlert(response.message);
+                        alertService.showAlert(response.message,response.qty);
 
 
                     }, function (data) {

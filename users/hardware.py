@@ -122,7 +122,7 @@ def backward_chamber_vacuum(step_count=33):
 def forward_chamber_vacuum(step_count=33):
     GPIO.setmode(GPIO.BOARD)
     setpins_roller()
-    delay = 0.005
+    delay = 0.01
     GPIO.output(DIR_ROLLER, GPIO.HIGH)
     for x in range(step_count):
         GPIO.output(STEP_ROLLER, GPIO.HIGH)
@@ -244,7 +244,7 @@ def backward_roller(step_count=23):
 
 def forward_roller(step_count=23):
     setpins_chamber()
-    DELAY = 0.005
+    DELAY = 0.01
     GPIO.output(DIR_CHAMBER, 1)
     for x in range(step_count):
         GPIO.output(STEP_CHAMBER, GPIO.HIGH)

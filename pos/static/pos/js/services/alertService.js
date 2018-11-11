@@ -6,7 +6,10 @@
         var o = {};
 
 
-        o.showAlert = function (message) {
+        o.showAlert = function (message,qty=0) {
+            // if(qty!==0){
+            //     $.get("/api/v1/play_audio?qty="+qty, function (data) {});
+            // }
             ModalService.showModal({
                 templateUrl: "/static/pos/templates/message_modal.html",
                 controller: function ($scope, close, $element, message) {

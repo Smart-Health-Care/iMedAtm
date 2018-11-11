@@ -8,6 +8,7 @@ urlpatterns = [
     # url(r'^dashboard$', dashboard),
     url(r'^prescription_list$', prescription_list, name='prescription_list'),
     url(r'^launch_camera$', CameraAccess, name='launch_camera'),
+    url(r'^launch_camera_wait$', launch_camera_wait, name='launch_camera_wait'),
     url(r'^verify_details$', verify_details, name='verify_details'),
     url(r'^prescription_view/(?P<id>[0-9]+)$', prescription_view, name='prescription_view'),
     url(r'^prescription_print_confirm/(?P<prescription_id>[0-9]+)$', prescription_print_confirm,

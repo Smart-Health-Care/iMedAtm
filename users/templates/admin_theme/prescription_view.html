@@ -93,6 +93,15 @@
                 <div class="row" style="margin-left: 120px;">
                     <div class="col-md-3 pull-right">
                         <a href="{% url 'end_session' %}" class="btn btn-primary">End Session</a>
+                        <img src="{% static 'admin_theme/img/help-icon.png' %}" width="40px" height="40px"
+                             style="margin: 10px; margin-top: 0;" class="pull-right"
+                             onclick="play_audio()"/>
+                        <script>
+                            function play_audio() {
+                                $.get("/api/v1/play_audio?file_name=PrescriptionViewH.wav", function (data) {
+                                });
+                            }
+                        </script>
                         <br>
                         {#                    <h3>Doctor</h3>#}
                         {#                    <img src="http://10.1.75.239:8001{{ doctor.profile_pic }}" class="img-circle"#}

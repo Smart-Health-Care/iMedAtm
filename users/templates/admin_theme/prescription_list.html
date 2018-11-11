@@ -1,13 +1,23 @@
 {% extends 'admin_theme/dashboard.html' %}
+{% load staticfiles %}
 {% block content %}
     <div class="panel panel-info">
         <div class="panel-heading">
             <h3>Prescription List</h3>
         </div>
 
-         <div class="col-md-3 pull-right">
-                    <a href="{% url 'end_session' %}" class="btn btn-primary">End Session</a>
-         </div>
+        <div class="col-md-3 pull-right">
+            <a href="{% url 'end_session' %}" class="btn btn-primary pull-left">End Session</a>
+            <img src="{% static 'admin_theme/img/help-icon.png' %}" width="40px" height="40px"
+                 style="margin: 10px;" class="pull-right"
+                 onclick="play_audio()"/>
+            <script>
+                function play_audio() {
+                    $.get("/api/v1/play_audio?file_name=prescriptionListH.wav", function (data) {
+                    });
+                }
+            </script>
+        </div>
         <div class="panel-body">
             <table class="table table-bordered table-striped">
                 <tr>
@@ -28,7 +38,7 @@
                                          height="100"></center>
                         </td>
                         <td>{{ data.created }}</td>
-                    <td><a href="{% url 'prescription_view' data.id %}" class="btn btn-primary">View</a> </td>
+                        <td><a href="{% url 'prescription_view' data.id %}" class="btn btn-primary">View</a></td>
                     </tr>
                 {% endfor %}
             </table>

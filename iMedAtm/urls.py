@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from pos.views import GetOTCMedicines, FinishBill
+from pos.views import GetOTCMedicines, FinishBill, PlayHelpAudio
 from users.views import landing_page
 
 urlpatterns = [
@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^users/', include('users.urls')),
     url(r'^pos/', include('pos.urls')),
     url(r'^api/otc_medicine_list', GetOTCMedicines.as_view()),
-    url(r'^api/finish_bill/', FinishBill.as_view())
+    url(r'^api/finish_bill/', FinishBill.as_view()),
+    url(r'^api/v1/play_audio/', PlayHelpAudio.as_view(), name='play_help_audio')
 ]

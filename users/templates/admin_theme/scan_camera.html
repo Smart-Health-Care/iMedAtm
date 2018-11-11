@@ -8,11 +8,22 @@
                     <h3>iMed Dispenser</h3>
                 </div>
                 <div class="panel-body">
-{#                    <img src="{% static 'admin_theme/img/scan_qr.jpg' %}"><br>#}
+
                     <br>
-                    <a href="{% url 'launch_camera' %}" class="btn btn-primary">Scan Qr</a>
+                    <a href="{% url 'launch_camera_wait' %}" class="btn btn-primary">Scan Qr</a>
                     <a href="{% url 'pos_index' %}" class="btn btn-primary" style="margin-left: 40px;">Purchase OTC
                         Drugs</a>
+                    <p><img src="{% static 'admin_theme/img/help-icon.png' %}" width="40px" height="40px"
+                            style="margin-right: 40px; margin-top: 5px;"
+                            onclick="play_audio()"/>
+                    <h3>ध्वनि निर्देशों के लिए इस आइकन पर क्लिक करें</h3>
+                    </p>
+                    <script>
+                        function play_audio() {
+                            $.get("/api/v1/play_audio?file_name=introH.wav", function (data) {
+                            });
+                        }
+                    </script>
                 </div>
             </div>
         </div>

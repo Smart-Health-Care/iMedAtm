@@ -76,9 +76,16 @@
 {% endfor %}
 <div class="container-fluid">
     <div class="panel panel-default">
-
         <a href="{% url 'end_session' %}" class="btn btn-primary" style="margin: 20px;">End Session</a>
-
+        <img src="{% static 'admin_theme/img/help-icon.png' %}" width="40px" height="40px"
+             style="margin: 10px;" class="pull-right"
+             onclick="play_audio()"/>
+        <script>
+            function play_audio() {
+                $.get("/api/v1/play_audio?file_name=mobileH.wav", function (data) {
+                });
+            }
+        </script>
         <div class="panel-heading">
             <center><h1>Enter Mobile Number</h1></center>
         </div>

@@ -41,8 +41,20 @@
         </div>
         <div class="navbar-collapse collapse" id="navbar-main">
             <ul class="nav navbar-nav navbar-right">
+                <li><img src="{% static 'admin_theme/img/help-icon.png' %}" width="40px" height="40px"
+                         style="margin-top: 10px; margin-right: 30px;"
+                         onclick="play_audio()"/>
+                </li>
                 <li><a href="{% url 'end_session' %}">End Session</a></li>
+
             </ul>
+            <script>
+                function play_audio() {
+                    $.get("/api/v1/play_audio?file_name=POSH.wav", function (data) {
+                    });
+                }
+            </script>
+
 
         </div>
     </div>
