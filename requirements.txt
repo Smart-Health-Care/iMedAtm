@@ -1,7 +1,7 @@
 pyzbar
 certifi==2018.4.16
 chardet==3.0.4
-Django==1.11.11
+Django==2.2.24
 django-autocomplete-light==3.2.10
 django-crispy-forms==1.7.2
 django-widget-tweaks==1.4.1
